@@ -1,0 +1,44 @@
+/* Estilos generales del menú */
+nav {
+  width: 60px;
+  background-color: #222;
+  height: 100vh;
+  position: fixed;
+  padding-top: 20px;
+}
+
+/* Lista */
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Elementos */
+nav ul li {
+  margin: 20px 0;
+  text-align: center;
+}
+
+/* Enlaces */
+nav ul li a {
+  color: #fff;
+  font-size: 24px;
+  display: block;
+  padding: 10px;
+  transition: 0.3s;
+}
+
+/* Hover */
+nav ul li a:hover {
+  background-color: #444;
+  border-radius: 10px;
+}
+
+/* Iconos indicativos (activo en original) */
+nav ul li a.activo,
+nav ul li a:focus {
+  background-color: #B05F4D;
+  border-radius: 10px;
+  color: #fff;
+}
