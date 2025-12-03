@@ -15,12 +15,12 @@ class UsuarioController extends Controller
     public function index()
     {
         // 1. Obtener todos los usuarios de la BD
-        $usuarios = DB::connection('mysql')
-            ->table('usuarios')
+        $usuario = DB::connection('mysql')
+            ->table('usuario')
             ->get();
         
         // 2. Mostrar la vista, pasándole la lista de usuarios
-        return view('usuariosViews.usuarios', ['usuarios' => $usuarios]);
+        return view('usuariosViews.usuarios', ['usuarios' => $usuario]);
     }
 
     // Método para INSERTAR (POST /usuarios)
@@ -32,7 +32,7 @@ class UsuarioController extends Controller
             'amaterno' => 'required|string',
             'fecha_naci' => 'required|date',
             'tel' => 'required|string|max:10',
-            'correo' => 'required|email|unique:usuarios,correo', // Corregido el nombre de la tabla
+            'correo' => 'required|email|unique:usuario,correo', // Corregido el nombre de la tabla
             'pass' => 'required|min:6',
             'rol' => 'required|in:administrador,sensei,tutor,alumno',
             'fecha_registro' => 'required|date',
@@ -40,7 +40,7 @@ class UsuarioController extends Controller
 
         try {
             DB::connection('mysql')
-                ->table('usuarios')
+                ->table('usuario')
                 ->insert([
                     'nombre' => $validated['nombre'],
                     'apaterno' => $validated['apaterno'],
