@@ -5,19 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tutores</title>
 
-  <!-- CSS externo -->
-  <link rel="stylesheet" href="/public/css/estilo5.css">
+  <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}"> 
+  <link rel="stylesheet" href="{{ asset('css/estilo6.css') }}"> 
 
-  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
+<head>
+    <title>Usuario </title>
+    <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}"> 
+    </head>
+
 <body>
 
-  <!-- Menú -->
-  <?php include("include/menu.php"); ?>
+@include('includes.menu') 
 
   <div class="main-content">
     <header>
@@ -26,8 +27,9 @@
 
     <div class="content">
 
-      <!-- Formulario -->
-      <form id="registroTutor" method="post" action="../servidor/insertarTutor.php">
+      <form id="registroTutor" method="post" action="{{ route('tutor.store') }}">
+        @csrf {{-- ¡CRÍTICO! Token de seguridad de Laravel --}}
+        
         <div class="text-center">
           <h2>Registro de Tutor</h2>
         </div>
@@ -36,9 +38,12 @@
           <label for="id_tutor" class="form-label">Usuario Tutor</label>
           <select name="id_tutor" id="id_tutor" class="form-control" required>
             <option value="">Seleccione un usuario</option>
-            <?php while($u = $usuarios_tutor->fetch_assoc()): ?>
-              <option value="<?= $u['id_usuario'] ?>"><?= htmlspecialchars($u['nombre']) ?></option>
-            <?php endwhile; ?>
+            
+            {{-- ELIMINAMOS fetch_assoc() y usamos @foreach --}}
+            @foreach($usuarios_tutor as $u) 
+              <option value="{{ $u->id_tutor }}">{{ $u->nombre_completo }}</option>
+            @endforeach
+            
           </select>
         </div>
 
@@ -55,7 +60,6 @@
         <button type="submit" class="btn btn-primary">Registrar</button>
       </form>
 
-      <!-- Tabla de tutores -->
       <div class="table-responsive tabla-tutores">
         <h2 class="text-center mt-4">Tutores Registrados</h2>
 
@@ -70,13 +74,13 @@
           </thead>
 
           <tbody>
-            <?php if ($tutores && $tutores->num_rows > 0): ?>
-              <?php while ($t = $tutores->fetch_assoc()): ?>
+            {{-- ELIMINAMOS fetch_assoc() y usamos @forelse para manejar el caso vacío --}}
+            @forelse ($tutores_registrados as $t) 
               <tr>
-                <td><?= htmlspecialchars($t['nombre'] . ' ' . $t['apaterno'] . ' ' . $t['amaterno']) ?></td>
-                <td><?= htmlspecialchars($t['ocupacion']) ?></td>
-                <td><?= htmlspecialchars($t['relacion_estudiante']) ?></td>
-                  
+                {{-- Usamos los nombres de columna del Controller (nombre_completo) --}}
+                <td>{{ $t->nombre_completo }}</td> 
+                <td>{{ $t->ocupacion }}</td>
+                <td>{{ $t->relacion_estudiante }}</td>
                   
                 <td>
                   <button class="btn btn-sm btn-warning" disabled>
@@ -88,22 +92,20 @@
                   </button>
                 </td>
               </tr>
-              <?php endwhile; ?>
-            <?php else: ?>
+            @empty
               <tr>
                 <td colspan="4" class="text-center">No hay tutores registrados.</td>
               </tr>
-            <?php endif; ?>
+            @endforelse
           </tbody>
         </table>
       </div>
 
     </div>
 
-    <?php include("include/pie.php"); ?>
+  @include('includes.pie')
   </div>
 
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

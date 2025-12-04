@@ -1,0 +1,89 @@
+body {
+  /* reemplazado: ahora se usa una imagen de fondo con overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  /* imagen de fondo + overlay semitransparente para mejor contraste */
+  background-image: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), url("../img/ka.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  font-family: Arial, sans-serif;
+}
+.auth-container {
+  background-color: #fff;
+  padding: 30px 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+.auth-container h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+.auth-container input[type="email"],
+.auth-container input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+/* Botones personalizados para login */
+.auth-container button,
+.auth-container .btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #e85654;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+}
+
+.auth-container button:hover,
+.auth-container .btn:hover {
+  background-color: #e85654;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Botón secundario para registro */
+.auth-container .btn-secondary-custom {
+  background-color: #007bff !important;
+  color: #fff !important;
+}
+
+.auth-container .btn-secondary-custom:hover {
+  background-color: #0056b3 !important;
+}
+
+.auth-container a {
+  display: block;
+  margin-top: 12px;
+  text-align: center;
+  color: #007bff;
+  text-decoration: none;
+}
+
+/* Sobrescribir estilos de Bootstrap para el contenedor de autenticación */
+.auth-container .btn {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  border: none !important;
+}
+
+.auth-container .btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+}

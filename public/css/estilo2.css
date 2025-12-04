@@ -1,62 +1,191 @@
 body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
-}
-
-/* Estilo del menú */
-.menu {
-    background-color: #222;
-    padding: 10px 0;
-}
-
-.menu ul {
-    list-style: none;
     display: flex;
-    justify-content: center;
     margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #4A4A4A;  /* color de fondo*/
+    min-height: 100vh; /* Cambiado de height: 100vh a min-height */
+    width: 100vw;      /* Asegura que ocupe todo el ancho */
+    box-sizing: border-box;
+  }
+  nav {
+    background-color: #4A4A4A        ;
+    width: 200px;
+    min-height: 100vh; /* Cambiado de height a min-height */
+    padding-top: 20px;
+    box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+  }
+  nav ul {
+    list-style: none;
     padding: 0;
-}
-
-.menu ul li {
-    margin: 0 20px;
-}
-
-.menu ul li a {
-    color: white;
+    margin: 0;
+  }
+  nav ul li {
+    margin: 20px 0;
+    text-align: center;
+  }
+  nav ul li a {
+    color: #F8F8F8;
     text-decoration: none;
     font-size: 18px;
+    display: block;
+    padding: 10px;
+  }
+  nav ul li a:hover {
+    background-color: #4A4A4A ;
+    border-radius: 8px;
+  }
+  nav ul li a.activo {
+    background-color: #4A4A4A ;
+    border-radius: 8px;
 }
-
-.menu ul li a:hover {
-    text-decoration: underline;
-}
-
-/* Contenido principal */
-
-.main-content {
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin: 0;
+    min-height: 100vh; /* Asegura que el contenido principal ocupe toda la altura */
+    box-sizing: border-box;
+  }
+  header, footer {
+    background-color: #4A4A4A ;
+    color: #ffffff;
     text-align: center;
-    padding: 40px;
-}
-
-.main-content h1 {
-    margin-bottom: 30px;
-}
-
-/* Imagen */
-
-.content img {
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
-
-/* Pie de página */
-
-.footer {
-    margin-top: 40px;
     padding: 15px;
-    background-color: #222;
-    color: white;
-    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  footer {
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    margin-top: auto; /* Empuja el pie de página hacia abajo */
+  }
+  .content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #F8F8F8;
+    margin: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: calc(100% - 40px); /* Ajusta el ancho para que sea igual en todas las pestañas */
+    box-sizing: border-box;   /* Incluye padding y border en el tamaño total */
+    min-width: 0;             /* Previene desbordamiento horizontal */
+    max-width: 1200px;        /* Opcional: limita el ancho máximo para uniformidad */
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;              /* Ocupa todo el ancho del .content */
+    max-width: 400px;         /* Opcional: limita el ancho del formulario */
+    margin: 0 auto;           /* Centra el formulario dentro del .content */
+    box-sizing: border-box;
+  }
+  input, button {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+
+
+
+  /* =======================================================
+     OPCIÓN 2: APLICAR ESTILOS DE BOOTSTRAP A TODOS LOS BOTONES
+     ======================================================= */
+  
+  /* Sobrescribir estilos de Bootstrap para mantener consistencia */
+  .btn {
+    border-radius: 8px !important;
+    padding: 10px 15px !important;
+    margin: 10px 0 !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+    border: none !important;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+  }
+
+  /* Personalizar colores de Bootstrap para que coincidan con tu tema */
+  .btn-primary {
+    background-color: #e85654 !important;
+    border-color: #e85654 !important;
+    color: #111 !important;
+  }
+
+  .btn-primary:hover {
+    background-color: #8c4638 !important;
+    border-color: #8c4638 !important;
+    color: #fff !important;
+  }
+
+  .btn-outline-primary {
+    color: #e85654 !important;
+    border-color: #e85654 !important;
+  }
+
+  .btn-outline-primary:hover {
+    background-color: #e85654 !important;
+    border-color: #e85654 !important;
+    color: #111 !important;
+  }
+
+  /* =======================================================
+     ESTILOS RESTANTES (SIN CAMBIOS)
+     ======================================================= */
+
+  nav ul li a i {
+    transition: background 0.3s, color 0.3s;
+    border-radius: 50%;
+    padding: 10px;
+    font-size: 24px;
+    display: inline-block;
+}
+
+/* Efecto circular al pasar el mouse */
+nav ul li a:hover i {
+    background: #fff;
+    color: #B05F4D ;
+}
+
+/* Efecto circular para el icono activo */
+nav ul li a.activo i,
+nav ul li a.activo:hover i {
+    background: #F8F8F8;
+    color: #B05F4D;
+}
+
+/* ...estilos para selects en todas las pestañas... */
+select,
+.form-control {
+    border-radius: 12px;
+    border: 1px solid #B05F4D;
+    padding: 10px;
+    background-color: #F8F8F8;
+    color: #111;
+    font-size: 16px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+select:focus,
+.form-control:focus {
+    border-color: #8c4638;
+    box-shadow: 0 0 0 2px #B05F4D33;
+    outline: none;
+}
+
+/* Mejora visual para select múltiples */
+select[multiple],
+.form-control[multiple] {
+    height: 120px;
+    overflow-y: auto;
+    background-color: #fff;
 }

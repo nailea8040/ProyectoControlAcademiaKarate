@@ -8,8 +8,13 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body>
+<head>
+    <title>Usuario </title>
+    <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}"> 
+    </head>
 
+<body>
+@include('includes.menu') 
   <!-- Menú general -->
   <div id="menu-container"></div>
 

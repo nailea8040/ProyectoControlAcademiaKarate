@@ -6,10 +6,16 @@
     <link rel="stylesheet" href="/css/estilos.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
+<head>
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="{{ asset('css/estiloindex.css') }}"> 
+    </head>
+    
 <body>
 
     <div class="container">
-        <form class="login-form" action="#" method="POST">
+        <form class="login-form" action="{{ route('login.attempt') }}" method="POST">
             @csrf
             <h2>Iniciar sesión</h2>
 

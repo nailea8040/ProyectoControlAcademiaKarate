@@ -4,14 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestión de Usuarios</title>
-    <link rel="stylesheet" href="/css/estilo3.css">
+    <link rel="stylesheet" href="/css/estiloU.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-
+<head>
+    <title>Usuario </title>
+    <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}"> 
+    </head>
+    
 <body>
-    <nav class="menu">...</nav>
+   @include('includes.menu') 
     <div class="main-content">
         <header>
             <h1>Sistema de Gestión de Dojo</h1>
@@ -100,6 +104,8 @@
         </footer>
 
     </div>
+
+     
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

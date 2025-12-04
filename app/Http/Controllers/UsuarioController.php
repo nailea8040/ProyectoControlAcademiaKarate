@@ -73,6 +73,7 @@ class UsuarioController extends Controller
     // Dejamos los otros métodos vacíos o con la implementación necesaria (como VerLogin)
     public function VerLogin(){
         // Lógica para ver el formulario de login, si es diferente al de registro
+        return view('login');
     }
     public function show(){}
     public function edit($id){}

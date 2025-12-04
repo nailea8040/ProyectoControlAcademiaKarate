@@ -8,7 +8,13 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
+<head>
+    <title>Usuario </title>
+    <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}"> 
+    </head>
+
 <body>
+  @include('includes.menu') 
   <nav class="menu">
       <ul>
           <li><a href="#">Inicio</a></li>
@@ -32,6 +38,7 @@
       <p>© 2025 Sistema de Gestión del Dojo</p>
     </footer>
   </div>
-
+  @include('includes.pie')
+  
 </body>
 </html>
