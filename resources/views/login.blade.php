@@ -2,19 +2,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mensaje</title>
-    <link rel="stylesheet" href="/css/estilos.css">
+    <link rel="stylesheet" href="{{ asset('css/estiloindex.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+     
 </head>
-
-<head>
-    <title>Iniciar Sesión</title>
-    <link rel="stylesheet" href="{{ asset('css/estiloindex.css') }}"> 
-    </head>
-    
 <body>
 
-    <div class="container">
+    <div class="auth-container">
         <form class="login-form" action="{{ route('login.attempt') }}" method="POST">
             @csrf
             <h2>Iniciar sesión</h2>
@@ -26,7 +20,6 @@
         </form>
     </div>
 
-    <!-- Aquí podrías activar la alerta si lo deseas -->
     <script>
         /* Ejemplo de uso:
         Swal.fire({

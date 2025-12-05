@@ -4,19 +4,34 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;;
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\PagoController;
-use App\Http\Controllers\TutorController; // Si lo necesitas para el controlador de tutores
-use App\Http\Controllers\UsuarioController; // Si no estaba
+use App\Http\Controllers\TutorController; 
+use App\Http\Controllers\UsuarioController; 
 
-// Ruta principal (sin cambios)
+
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/', function () {
+    return view('usuariosViews.principal'); 
+
+})->name('principal');
+
+Route::resource('usuarios', UsuarioController::class)->except(['create', 'show'])
+    ->names([
+        'edit' => 'editarUsu',
+    ]);
 
 // --- RUTA PARA USUARIOS (Base) ---
 Route::resource('usuarios', UsuarioController::class)->only([
     'index', 
     'store' 
 ]);
+
+Route::resource('usuarios', UsuarioController::class)->except(['create', 'show'])
+->names([
+        'edit' => 'editarUsu',
+    ]);
 
 // --- RUTAS PARA ALUMNOS ---
 // Define GET /alumnos (listado) y POST /alumnos (inserción)
@@ -52,5 +67,15 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name('login.aut
 // Procesa el formulario de login (donde se enviará la solicitud POST)
 Route::post('/login', [LoginController::class, 'login'])->name('login.attempt');
 
-// NOTA: Asegúrate de reemplazar LoginController y los nombres de los métodos
-// por los que realmente usas en tu proyecto.
+// Rutas de autenticación (Generalmente van fuera del middleware 'auth' ya que es la salida)
+
+// 1. Ruta POST para el cierre de sesión (segura)
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+
+// 2. Ruta GET (opcional) para direccionar al formulario de cierre de sesión
+// Esta ruta es la que usaremos en el enlace <a href="..."> en el Blade.
+// Luego, usaremos un formulario oculto en el Blade para disparar la solicitud POST.
+Route::get('logout', function () {
+    return view('auth.logout_confirmation'); // Puedes crear una vista de confirmación o simplemente redirigir
+})->name('logout.show');
+

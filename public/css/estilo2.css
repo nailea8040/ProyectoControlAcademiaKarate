@@ -46,6 +46,7 @@ body {
     min-height: 100vh; /* Asegura que el contenido principal ocupe toda la altura */
     box-sizing: border-box;
   }
+  
   header, footer {
     background-color: #4A4A4A ;
     color: #ffffff;
@@ -74,7 +75,7 @@ body {
     width: calc(100% - 40px); /* Ajusta el ancho para que sea igual en todas las pestañas */
     box-sizing: border-box;   /* Incluye padding y border en el tamaño total */
     min-width: 0;             /* Previene desbordamiento horizontal */
-    max-width: 1200px;        /* Opcional: limita el ancho máximo para uniformidad */
+   
   }
   form {
     display: flex;
@@ -135,6 +136,23 @@ body {
     border-color: #e85654 !important;
     color: #111 !important;
   }
+
+  /* Aseguramos que los enlaces activos tengan posición relativa para que la flecha se posicione bien */
+nav ul li a.activo {
+    position: relative; 
+}
+  /* Posicionamiento del indicador de página activa (la flecha) */
+nav .active-indicator {
+    position: absolute;
+    right: -10px; /* Ajusta la posición para que salga del sidebar */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    background: none !important;
+    color: #F8F8F8 !important; /* Color de la flecha, cámbialo si es necesario */
+}
+
+
 
   /* =======================================================
      ESTILOS RESTANTES (SIN CAMBIOS)

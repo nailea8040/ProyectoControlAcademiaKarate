@@ -4,16 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestión de Pagos</title>
-
-  <link rel="stylesheet" href="/css/estilo6.css"> 
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   <link rel="stylesheet" href="/css/estilo2.css"> 
 </head>
 <body>
 
-  <nav class="menu">...</nav> 
+ @include('includes.menu') 
 
   <div class="main-content">
     <header>
@@ -86,7 +84,7 @@
             @error('estadoPago')<div style="color: red; font-size: 0.9em;">{{ $message }}</div>@enderror
         </div>
 
-        <button type="submit" class="btn btn-success mt-3">Registrar Pago</button>
+        <button type="submit" class="btn btn-primary">Registrar Pago</button>
       </form>
 
       <div class="table-responsive mt-5">

@@ -76,8 +76,76 @@ class UsuarioController extends Controller
         return view('login');
     }
     public function show(){}
-    public function edit($id){}
-    public function update($id){}
+    public function edit($id){
+        // 1. Buscar el usuario por su clave primaria
+        $usuario = DB::connection('mysql')
+            ->table('usuario')
+            ->where('id_usuario', $id) // ASUME que la PK es 'id_usuario'
+            ->first();
+
+        // 2. Manejar el caso de que el usuario no exista
+        if (!$usuario) {
+            return redirect()->route('usuarios.index')
+                             ->with('sessionInsertado', 'false')
+                             ->with('mensaje', 'Usuario no encontrado para edición.');
+        }
+
+        // 3. Mostrar la vista 'usuariosViews.edit', pasándole el objeto $usuario
+        return view('usuariosViews.editarUsu', compact('usuario'));
+    }
+    public function update(Request $request, $id){
+        // 1. Validar los datos
+        $validated = $request->validate([
+            'nombre' => 'required|string',
+            'apaterno' => 'required|string',
+            'amaterno' => 'required|string',
+            'fecha_naci' => 'required|date',
+            'tel' => 'required|string|max:20',
+            // El correo debe ser único, IGNORANDO el correo del usuario actual por su ID
+            'correo' => 'required|email|unique:usuario,correo,'.$id.',id_usuario', 
+            'rol' => 'required|in:administrador,sensei,tutor,alumno',
+            'pass' => 'nullable|min:6', // Contraseña es opcional
+        ]);
+
+        try {
+            $dataToUpdate = [
+                'nombre' => $validated['nombre'],
+                'apaterno' => $validated['apaterno'],
+                'amaterno' => $validated['amaterno'],
+                'fecha_naci' => $validated['fecha_naci'],
+                'tel' => $validated['tel'],
+                'correo' => $validated['correo'],
+                'rol' => $validated['rol'],
+            ];
+
+            // 2. Manejar la contraseña solo si el campo 'pass' fue llenado
+            if (!empty($validated['pass'])) {
+                $dataToUpdate['pass'] = Hash::make($validated['pass']);
+            }
+
+            // 3. Ejecutar la actualización en la BD
+            $updated = DB::connection('mysql')
+                ->table('usuario')
+                ->where('id_usuario', $id)
+                ->update($dataToUpdate);
+
+            // 4. Redirigir al listado con un mensaje de éxito
+            return redirect()
+                ->route('usuarios.index')
+                ->with('sessionInsertado', 'true')
+                ->with('mensaje', '¡Usuario con ID ' . $id . ' actualizado con éxito!');
+
+        } catch (\Exception $e) {
+            Log::error("Error al actualizar usuario ID $id: " . $e->getMessage());
+            // Si falla, regresa al formulario de edición con un error
+            return redirect()
+                ->route('editarUsu', $id) // O 'usuarios.edit' si usas la convención RESTful
+                ->withInput()
+                ->with('sessionInsertado', 'false')
+                ->with('mensaje', 'Error al actualizar el usuario: ' . $e->getMessage());
+        }
+    
+    }
     public function destroy($id){}
     public function confirmMail($correo){} // Mantener si es necesaria
 

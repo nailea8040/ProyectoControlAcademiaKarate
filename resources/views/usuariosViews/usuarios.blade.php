@@ -4,18 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestión de Usuarios</title>
-    <link rel="stylesheet" href="/css/estiloU.css">
+     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<head>
-    <title>Usuario </title>
     <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}"> 
-    </head>
+</head>
+
     
 <body>
-   @include('includes.menu') 
+    @include('includes.menu') 
     <div class="main-content">
         <header>
             <h1>Sistema de Gestión de Dojo</h1>
@@ -72,6 +70,7 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
+                    
                     <tbody>
                         @foreach($usuarios as $usuario)
                             <tr>
@@ -83,13 +82,20 @@
                                 <td>{{ $usuario->rol }}</td>
                                 <td>{{ $usuario->fecha_naci }}</td>
                                 <td>{{ $usuario->fecha_registro }}</td>
+                                
                                 <td>
-                                    <button class="btn btn-sm btn-warning">
+                                    <a href="{{ route('editarUsu', $usuario->id_usuario) }}" class="btn btn-sm btn-warning" title="Editar">
                                         <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    </a>
+                                    
+                                    <form action="{{ route('usuarios.destroy', $usuario->id_usuario) }}" method="POST" style="display:inline;" onsubmit="return confirmarEliminacion(event);">
+                                        @csrf
+                                        @method('DELETE') 
+                                        
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
@@ -105,24 +111,47 @@
 
     </div>
 
-     
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         @if(session('sessionInsertado'))
             const icono = '{{ session('sessionInsertado') == 'true' ? 'success' : 'error' }}';
             const titulo = '{{ session('mensaje') }}';
-            
             Swal.fire({
                 icon: icono,
                 title: titulo,
                 showConfirmButton: false,
                 timer: 2000
             });
-            // Ocultar el div de alerta temporal después de mostrar SweetAlert
-            document.getElementById('alerta-temp').style.display = 'none';
+
+            // Ocultar el div de alerta temporal si es necesario
+            const alertaTemp = document.getElementById('alerta-temp');
+            if (alertaTemp) {
+                 alertaTemp.style.display = 'none';
+            }
         @endif
+        
+        function confirmarEliminacion(event) {
+            event.preventDefault(); // Detiene el envío del formulario inicialmente
+            const form = event.target; // Captura el formulario que se está intentando enviar
+            
+            Swal.fire({
+                title: '¿Estás seguro de eliminar?',
+                text: "¡No podrás recuperar este registro!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, ¡Eliminar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Si el usuario hace clic en "Sí, ¡Eliminar!", se envía el formulario
+                    form.submit();
+                }
+            });
+            return false; // Evita el envío por defecto del navegador
+        }
     </script>
 </body>
 </html>
