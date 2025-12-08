@@ -8,40 +8,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}"> 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <style>
-        /* Sobrescribimos .content-area y .main-content-panels para la vista principal */
-        .main-container .content-area {
-            padding: 0; /* Eliminamos el padding para que el fondo llegue a los bordes */
-            height: calc(100vh - 76px); /* Altura total - altura del header */
-        }
-        
-        /* Contenedor del fondo de imagen (reemplaza a la caja blanca) */
-        .content-background {
-            position: relative;
-            height: 100%;
-            width: 100%;
-            /* Propiedades cruciales para el fondo de imagen completo */
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ asset('img/pk1.jpg') }}') center/cover;
-            
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: white;
-            border-radius: 8px; /* Aplicamos el borde redondeado de la caja */
-            overflow: hidden; /* Aseguramos que la imagen se respete el border-radius */
-        }
-        
-        .content-background h2 {
-            margin: 10px 20px;
-            max-width: 700px;
-            font-size: 24px;
-            font-weight: 400;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
-        }
-    </style>
 </head>
 <body>
     
@@ -54,17 +20,31 @@
         </header>
 
         <div class="content-area">
-            
-            <div class="content-background">
-                <h2>Descubre el camino del samurai</h2>
-                <h2>Entrena cuerpo y mente en nuestro dojo. Aprende karate con maestros expertos y alcanza tu máximo potencial.</h2>
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h2>Descubre el Camino del Samurai</h2>
+                    <p>Entrena cuerpo y mente en nuestro dojo. Aprende karate con maestros expertos y alcanza tu máximo potencial.</p>
+                    
+                    <div class="stats-container">
+                        <div class="stat-box">
+                            <span class="stat-number">100+</span>
+                            <span class="stat-label">Alumnos</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">15</span>
+                            <span class="stat-label">Años</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">3</span>
+                            <span class="stat-label">Maestros</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
         </div>
-@include('includes.pie') 
-    </div>
 
-    
+        @include('includes.pie') 
+    </div>
     
 </body>
 </html>

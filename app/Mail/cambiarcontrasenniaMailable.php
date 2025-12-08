@@ -5,20 +5,21 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class CambiarContraseniaMailable extends Mailable
+class cambiarcontrasenniaMailable extends Mailable
 {
     use Queueable, SerializesModels;
+    private $nombreCompleto;
+    private $token;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct()
+    public function __construct($nombrecompleto, $token)
     {
-        //
+        $this->nombreCompleto = $nombrecompleto;
+        $this->token = $token;
     }
 
     /**
@@ -27,7 +28,8 @@ class CambiarContraseniaMailable extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Cambiar Contrasenia Mailable',
+            from: new Address(env("MAIL_FROM_ADDRESS"),'Tomás González'),
+            subject: 'Cambiar contraseña',
         );
     }
 
@@ -37,7 +39,11 @@ class CambiarContraseniaMailable extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'ResetPasswordViews.mensajecambiarcontrasennia',
+            with: [
+                'nombreCompleto' => $this->nombreCompleto,
+                'token' => $this->token,
+            ]
         );
     }
 

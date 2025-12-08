@@ -59,25 +59,21 @@
       </form>
 
       <!-- TABLA DE ALUMNOS -->
-      <div class="table-responsive" style="margin-left: 60px;">
-        <h2 class="text-center mt-4">Alumnos Registrados</h2>
-
-        <table class="table table-striped table-hover align-middle" style="color:black">
-          <thead class="table-dark">
-            <tr>
-              <th>Nombre</th>
-              <th>Tutor</th>
-              <th>Grado Actual</th>
-              <th>Fecha de Inscripción</th>
-              <th>Condiciones Médicas</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-alumnos">
-            <!-- Se llena dinámicamente desde JS -->
-          </tbody>
-        </table>
-      </div>
+         <div class="table-container">
+                <h2>Usuarios Registrados</h2>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Tutor</th>
+                                <th>Grado Actual</th>
+                                <th>Fecha de Inscripción</th>
+                                <th>Condiciones Médicas</th>
+                                <th>Acciones</th>
+   
+                            </tr>
+                        </thead>
 
     </div>
 

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="{{ asset('css/estiloindex.css') }}">
+    <link rel="stylesheet" href="{{ asset('/css/estiloindex.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
      
 </head>
@@ -17,6 +17,9 @@
             <input type="password" name="contra" placeholder="Contraseña" required>
 
             <button type="submit">Ingresar</button>
+            <a href="{{ route('password.request') }}" class="forgot-password-link">
+            ¿Olvidaste tu contraseña?
+        </a>
         </form>
     </div>
 

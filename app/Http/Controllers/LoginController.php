@@ -60,7 +60,7 @@ class LoginController extends Controller
             $request->session()->regenerate();
 
             // 4.4. Redirigir al dashboard
-            return redirect()->intended('/usuarios')
+            return redirect()->intended('/principal')
                              ->with('success', '¡Bienvenido ' . $usuario->nombre . '!');
         }
 

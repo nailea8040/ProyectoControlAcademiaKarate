@@ -8,11 +8,13 @@ use App\Http\Controllers\TutorController;
 use App\Http\Controllers\UsuarioController; 
 
 
+use App\Http\Controllers\ResetPasswordController;
+
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/', function () {
+Route::get('principal', function () {
     return view('usuariosViews.principal'); 
 
 })->name('principal');
@@ -72,10 +74,20 @@ Route::post('/login', [LoginController::class, 'login'])->name('login.attempt');
 // 1. Ruta POST para el cierre de sesión (segura)
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
-// 2. Ruta GET (opcional) para direccionar al formulario de cierre de sesión
-// Esta ruta es la que usaremos en el enlace <a href="..."> en el Blade.
-// Luego, usaremos un formulario oculto en el Blade para disparar la solicitud POST.
 Route::get('logout', function () {
     return view('auth.logout_confirmation'); // Puedes crear una vista de confirmación o simplemente redirigir
 })->name('logout.show');
+
+
+// Muestra el formulario de "Olvidó su contraseña"
+Route::get('forgot-password', [ResetPasswordController::class, 'showResetForm'])->name('password.request');
+
+// Procesa el formulario y envía el enlace al correo
+Route::post('forgot-password', [ResetPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+
+// Muestra el formulario para cambiar la contraseña usando el token
+Route::get('reset-password/{token}', [ResetPasswordController::class, 'showResetFormWithToken'])->name('password.reset');
+
+// Procesa el formulario para guardar la nueva contraseña
+Route::post('reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.update');
 
