@@ -5,7 +5,7 @@
         {{-- Enlace Inicio --}}
         <li>
             <a href="{{ route('principal') }}" 
-               class="{{ request()->routeIs('principal') ? 'activo' : '' }}" 
+               class="{{ request()->routeIs('Principal') ? 'activo' : '' }}" 
                title="Inicio">
                 <i class="bi bi-house-door"></i>
             </a>
