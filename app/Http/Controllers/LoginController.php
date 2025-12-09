@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session; // Para manejar la sesión manualmente
+use App\Models\Usuario;
 
 class LoginController extends Controller
 {
@@ -24,7 +26,6 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        // 1. Validar los datos de entrada
         $request->validate([
             'correo' => 'required|email',
             'contra' => 'required|string',
@@ -33,33 +34,23 @@ class LoginController extends Controller
         $correo = $request->input('correo');
         $pass_ingresada = $request->input('contra');
         
-        // 2. Buscar el usuario por correo en la tabla 'usuario'
-        $usuario = DB::connection('mysql')
-            ->table('usuario')
-            ->where('correo', $correo)
-            // Seleccionamos específicamente los campos que vamos a necesitar:
-            // id_usuario, pass, rol, nombre, apaterno, amaterno
-            ->select('id_usuario', 'pass', 'rol', 'nombre', 'apaterno', 'amaterno')
-            ->first(); 
+        // 2. Buscar el usuario (Usando el modelo Eloquent)
+        // Usamos el modelo Usuario que ya configuraste.
+        $usuario = Usuario::where('correo', $correo)->first(); 
 
         // 3. Verificar si el usuario existe y si la contraseña es correcta
-        if ($usuario && Hash::check($pass_ingresada, $usuario->pass)) {
+        // Usamos la columna 'pass'
+        if ($usuario && Hash::check($pass_ingresada, $usuario->pass)) { 
             
-            // 4. Autenticación exitosa
+            // 🛑 4.1. ¡SOLUCIÓN! Autenticar al usuario de forma nativa en Laravel 🛑
+            Auth::login($usuario); 
             
-            // 4.1. Construir el nombre completo para mostrarlo en la interfaz (Opcional)
-            $nombre_completo = trim($usuario->nombre . ' ' . $usuario->apaterno . ' ' . $usuario->amaterno);
+            // La sesión ya contiene el objeto Usuario completo, incluyendo el 'rol'.
+            // Ya no necesitas Session::put('id_usuario'), Session::put('rol'), etc.
             
-            // 4.2. Crear la sesión utilizando id_usuario
-            Session::put('authenticated', true);
-            Session::put('id_usuario', $usuario->id_usuario); // <-- Usamos el ID correcto
-            Session::put('rol', $usuario->rol);
-            Session::put('nombre_completo', $nombre_completo); // Guardamos el nombre construido
-            
-            // 4.3. Regenerar la sesión por seguridad
             $request->session()->regenerate();
 
-            // 4.4. Redirigir al dashboard
+            // 4.3. Redirigir al dashboard
             return redirect()->intended('/principal')
                              ->with('success', '¡Bienvenido ' . $usuario->nombre . '!');
         }
@@ -72,12 +63,11 @@ class LoginController extends Controller
             ->withErrors(['login_fallido' => 'Credenciales incorrectas. Verifique su correo y contraseña.']);
     }
 
-    /**
-     * Cierra la sesión del usuario.
-     */
     public function logout(Request $request)
     {
-        Session::flush();
+        // 🛑 ¡SOLUCIÓN! Usar Auth::logout() en lugar de Session::flush() 🛑
+        Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

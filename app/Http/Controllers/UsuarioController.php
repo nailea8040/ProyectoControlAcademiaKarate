@@ -17,6 +17,7 @@ class UsuarioController extends Controller
         // 1. Obtener todos los usuarios de la BD
         $usuario = DB::connection('mysql')
             ->table('usuario')
+            ->where('rol', '!=', 'administrador')
             ->get();
         
         // 2. Mostrar la vista, pasándole la lista de usuarios

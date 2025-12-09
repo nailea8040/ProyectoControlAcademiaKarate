@@ -91,3 +91,20 @@ Route::get('reset-password/{token}', [ResetPasswordController::class, 'showReset
 // Procesa el formulario para guardar la nueva contraseña
 Route::post('reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.update');
 
+// routes/web.php
+
+// 🛑 Este middleware es CRÍTICO para que Auth::check() funcione 🛑
+Route::middleware('auth')->group(function () {
+    
+    // 1. Ruta Principal
+    Route::get('principal', function () {
+        return view('usuariosViews.principal'); 
+    })->name('principal');
+    
+    // 2. Rutas de Gestión (Pagos, Usuarios, etc.)
+    Route::resource('pagos', PagoController::class)->only(['index', 'store']);
+
+    // ... y el resto de tus Route::resource (usuarios, alumnos, tutor) aquí
+    
+});
+

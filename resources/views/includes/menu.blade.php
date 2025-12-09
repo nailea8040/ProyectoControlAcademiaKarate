@@ -1,58 +1,41 @@
 <nav class="sidebar">
     <div class="sidebar-logo">空手</div>
     
-    <ul>
-        {{-- Enlace Inicio --}}
-        <li>
-            <a href="{{ route('principal') }}" 
-               class="{{ request()->routeIs('Principal') ? 'activo' : '' }}" 
-               title="Inicio">
-                <i class="bi bi-house-door"></i>
-            </a>
-        </li>
-        
-        {{-- Bloque visible solo para Administrador --}}
-        @if(true)
-            
-            {{-- Enlace Usuarios --}}
+    @auth 
+        <ul>
+            {{-- Enlace Principal (Acceso Básico) --}}
+            @can('acceso-basico')
             <li>
-                <a href="{{ route('usuarios.index') }}" 
-                   class="{{ request()->routeIs('usuarios.*') ? 'activo' : '' }}" 
-                   title="Usuarios">
-                    <i class="bi bi-people"></i>
+                <a href="{{ route('principal') }}" title="Inicio">
+                    <i class="bi bi-house-door"></i>
                 </a>
             </li>
+            @endcan
             
-            {{-- Enlace Alumnos --}}
+            {{-- Bloque de Gestión (solo visible si el usuario puede 'acceso-gestion') --}}
+            @can('acceso-gestion')
+                
+                {{-- Enlace Usuarios --}}
+                <li><a href="{{ route('usuarios.index') }}" title="Usuarios"><i class="bi bi-people"></i></a></li>
+                
+                {{-- Enlace Alumnos --}}
+                <li><a href="{{ route('alumnos.index') }}" title="Alumnos"><i class="bi bi-person-badge"></i></a></li>
+                
+                {{-- Enlace Tutores --}}
+                <li><a href="{{ route('tutor.index') }}" title="Tutores"><i class="bi bi-person-lines-fill"></i></a></li>
+                
+            @endcan
+            
+            {{-- Enlace Pagos (Acceso Básico) --}}
+            @can('acceso-basico')
             <li>
-                <a href="{{ route('alumnos.index') }}" 
-                   class="{{ request()->routeIs('alumnos.*') ? 'activo' : '' }}" 
-                   title="Alumnos">
-                    <i class="bi bi-person-badge"></i>
+                <a href="{{ route('pagos.index') }}" title="Pagos">
+                    <i class="bi bi-cash-coin"></i>
                 </a>
             </li>
+            @endcan
             
-            {{-- Enlace Tutores --}}
-            <li>
-                <a href="{{ route('tutor.index') }}" 
-                   class="{{ request()->routeIs('tutor.*') ? 'activo' : '' }}" 
-                   title="Tutores">
-                    <i class="bi bi-person-lines-fill"></i>
-                </a>
-            </li>
-            
-        @endif
-        
-        {{-- Enlace Pagos --}}
-        <li>
-            <a href="{{ route('pagos.index') }}" 
-               class="{{ request()->routeIs('pagos.*') ? 'activo' : '' }}" 
-               title="Pagos">
-                <i class="bi bi-cash-coin"></i>
-            </a>
-        </li>
-        
-        {{-- Enlace Salir --}}
+            {{-- Enlace Salir --}}
         <li>
             <a href="#" 
                title="Salir" 
@@ -61,9 +44,18 @@
             </a>
         </li>
     </ul>
-    
     {{-- Formulario de Logout --}}
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
     </form>
+
+    
+    @endauth
+    
+    @guest
+        {{-- Enlace Login si no está autenticado --}}
+        <ul>
+            <li><a href="{{ route('login') }}" title="Ingresar"><i class="bi bi-box-arrow-in-right"></i></a></li>
+        </ul>
+    @endguest
 </nav>

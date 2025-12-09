@@ -1,26 +1,55 @@
 <?php
 
-namespace App\Mail;
+namespace App\Models;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class ConfirmarCorreoMailable extends Mailable
+class Usuario extends Authenticatable // Cambiado de 'User' a 'Usuario'
 {
-    use SerializesModels;
+    use HasFactory, Notifiable;
 
-    public $nombre;
-    public $correo;
+    // 🛑 1. Nombre de la tabla
+    protected $table = 'usuario'; 
 
-    public function __construct($nombre, $correo)
+    // 🛑 2. Llave primaria
+    protected $primaryKey = 'id_usuario';
+
+    // 🛑 3. Atributos que pueden ser asignados masivamente (Asegúrate de incluir 'rol')
+    protected $fillable = [
+        'nombre', // Coincide con tu columna 'nombre'
+        'apaterno',
+        'amaterno',
+        'fecha_naci',
+        'tel',
+        'correo', // Coincide con tu columna 'correo'
+        'pass',
+        'rol',    // **CRÍTICO: Incluir 'rol' para que se guarde**
+    ];
+
+    // 🛑 4. Atributos ocultos al serializar (usando 'pass' en lugar de 'password')
+    protected $hidden = [
+        'pass',
+        'remember_token',
+    ];
+
+    // 🛑 5. Define la columna de contraseña para que use 'pass' (Sobrescribe el valor por defecto 'password')
+    public function getAuthPasswordName()
     {
-        $this->nombre = $nombre;
-        $this->correo = $correo;
+        return 'pass';
     }
 
-    public function build()
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
     {
-        return $this->view('emails.confirmar-correo')
-                    ->subject('Confirma tu correo');
+        return [
+            // No tienes 'email_verified_at', pero sí debes hashear la contraseña
+            'pass' => 'hashed', 
+        ];
     }
 }

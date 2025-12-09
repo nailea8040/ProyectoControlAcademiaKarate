@@ -53,18 +53,18 @@
         <button type="submit" class="btn btn-primary">Registrar</button>
       </form>
 
-      <div class="table-responsive tabla-tutores">
-        <h2 class="text-center mt-4">Tutores Registrados</h2>
-
-        <table class="table table-striped table-hover align-middle tabla-custom">
-          <thead class="table-dark">
-            <tr>
-              <th>Nombre</th>
-              <th>Ocupación</th>
-              <th>Relación con el Estudiante</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
+       <div class="table-container">
+                <h2>Usuarios Registrados</h2>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Ocupación</th>
+                                <th>Relación con el Estudiante</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
 
           <tbody>
             {{-- ELIMINAMOS fetch_assoc() y usamos @forelse para manejar el caso vacío --}}
