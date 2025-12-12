@@ -46,7 +46,7 @@
       <p class="login-box-msg">Ahora puedes escribir una nueva cotraseña</p>
       <form id="registroForm" action="{{route("password.update")}}" method="post">
           @csrf
-        
+         @method('PUT')
 
           <input type="hidden" name="mytoken" value="{{$token}}">
         <div class="input-group mb-3">

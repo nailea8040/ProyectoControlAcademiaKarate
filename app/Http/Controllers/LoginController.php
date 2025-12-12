@@ -34,28 +34,21 @@ class LoginController extends Controller
         $correo = $request->input('correo');
         $pass_ingresada = $request->input('contra');
         
-        // 2. Buscar el usuario (Usando el modelo Eloquent)
-        // Usamos el modelo Usuario que ya configuraste.
         $usuario = Usuario::where('correo', $correo)->first(); 
 
-        // 3. Verificar si el usuario existe y si la contraseña es correcta
-        // Usamos la columna 'pass'
+        // Verificar si el usuario existe y si la contraseña es correcta
+      
         if ($usuario && Hash::check($pass_ingresada, $usuario->pass)) { 
             
-            // 🛑 4.1. ¡SOLUCIÓN! Autenticar al usuario de forma nativa en Laravel 🛑
             Auth::login($usuario); 
-            
-            // La sesión ya contiene el objeto Usuario completo, incluyendo el 'rol'.
-            // Ya no necesitas Session::put('id_usuario'), Session::put('rol'), etc.
             
             $request->session()->regenerate();
 
-            // 4.3. Redirigir al dashboard
             return redirect()->intended('/principal')
                              ->with('success', '¡Bienvenido ' . $usuario->nombre . '!');
         }
 
-        // 5. Autenticación fallida
+        // Autenticación fallida
         Log::warning('Intento de login fallido para el correo: ' . $correo);
 
         return back() 
@@ -65,7 +58,7 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        // 🛑 ¡SOLUCIÓN! Usar Auth::logout() en lugar de Session::flush() 🛑
+  
         Auth::logout();
 
         $request->session()->invalidate();

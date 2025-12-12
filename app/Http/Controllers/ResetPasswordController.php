@@ -50,12 +50,7 @@ class ResetPasswordController extends Controller
                     ->with('mensaje', $MensajeError);
             }
         }
-        catch (\Swift_TransportException $e){
-            $MensajeError="Hubo un error con las credenciales de correo";
-            return redirect(route('password.reset'))
-                ->with('sessionCambiarContrasennia', 'false')
-                ->with('mensaje', $MensajeError); //With envía en una session flash dos claves y sus valores
-        }
+    
         catch (\Exception $e){
             $MensajeError="Hubo un error en el servidor";
             return redirect(route('password.reset'))
@@ -65,7 +60,7 @@ class ResetPasswordController extends Controller
     }
 
     public function sendResetLinkEmail(Request $request){
-    $correo = $request->input('email'); // Usar input('email') ya que el campo en la vista es 'email'
+    $correo = $request->input('correo'); // Usar input('email') ya que el campo en la vista es 'email'
 
     try{
         // 1. Buscar al usuario y obtener sus datos importantes
@@ -104,6 +99,7 @@ class ResetPasswordController extends Controller
                 return redirect(route('password.request'))
                     ->with('sessionRecuperarContrasennia', 'false')
                     ->with('mensaje', $Mensaje);
+                 
             }
         } else {
             // Usuario no encontrado
@@ -129,9 +125,7 @@ class ResetPasswordController extends Controller
 }
 
     public function resetPassword(Request $request){
-    // Asegúrate de que las contraseñas coincidan y cumplan validaciones aquí.
-    // Aunque este controlador no tiene las validaciones, Laravel normalmente las manejaría.
-    $contrasennia = $request->input('password'); // Asumo que el campo se llama 'password' o 'contrasennia' en la vista
+    $contrasennia = $request->input('password');
     $contraseniaCifrada = Hash::make($contrasennia);
     $token = $request->mytoken;
 

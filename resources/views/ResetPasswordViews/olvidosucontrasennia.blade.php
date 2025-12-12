@@ -48,25 +48,20 @@
 
             <div class="card-body">
                 <p class="login-message text-center">¿Olvidaste tu contraseña? <br>Aquí puedes recuperarla fácilmente.</p>
-                <form id="registroForm" action="{{route("password.email")}}" method="post">
-                    @csrf
-                    
-                    <div class="input-group mb-3">
-                        <input type="email" class="form-control" name="email" placeholder="Correo Electrónico" required>
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-danger btn-block">Solicita una nueva contraseña</button> 
-                        </div>
-                    </div>
-                </form>
+                       <form id="registroForm" action="/login" method="post">
+                @csrf
+               
+                
+                <label for="correo">Correo institucional</label>
+                <input type="text" id="correo" class="form-control" name="correo" placeholder="Ingresa tu correo institucional">
+                
+                <button type="submit">SOLICITAR RESTABLECIMIENTO</button>
 
+                <div class="links" style="text-align: center; margin-top: 15px;">
+                    <a href="{{route('login')}}">Volver a Iniciar Sesión</a>
+                </div>
+           
                 <p class="mt-3 mb-1 text-center">
                     <a href="{{route('login')}}" class="text-center">Iniciar Sesión</a>
                 </p>

@@ -10,7 +10,10 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    background-image: url("/img/ka.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -51,6 +54,7 @@ body {
     text-align: center;
     color: white;
 }
+
 
 .logo-container {
     width: 80px;

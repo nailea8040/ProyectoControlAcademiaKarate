@@ -20,9 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // 🛑 Aquí registramos los Gates de autorización 🛑
-
-        // Gate para Acceso a Gestión (Roles: administrador, sensei)
+       
         Gate::define('acceso-gestion', function ($usuario) {
             // Usamos in_array para manejar los roles en minúsculas de tu DB
             return in_array($usuario->rol, ['administrador', 'sensei']);

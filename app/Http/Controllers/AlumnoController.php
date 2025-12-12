@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Log;
 class AlumnoController extends Controller
 {
     // DEFINICIONES DE TABLAS Y COLUMNAS CONSISTENTES
-    private $userTable = 'usuario'; // <-- ¡CORREGIDO! Usamos 'usuario' (singular)
-    private $userIdColumn = 'id';    // <-- Asumimos 'id' como columna clave
+    private $userTable = 'usuario'; 
+    private $userIdColumn = 'id';   
 
     public function index()
     {
         try {
-            // 1. Obtener los alumnos registrados con sus nombres y el nombre de su tutor.
+            // Obtener los alumnos registrados con sus nombres y el nombre de su tutor.
             $alumnos_registrados = DB::table('alumno')
                 // JOIN para el ALUMNO, usando 'usuario' y la columna 'id'
                 ->join("{$this->userTable} as a", 'alumno.id_alumno', '=', "a.{$this->userIdColumn}")

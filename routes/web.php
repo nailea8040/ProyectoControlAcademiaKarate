@@ -78,12 +78,18 @@ Route::get('logout', function () {
     return view('auth.logout_confirmation'); // Puedes crear una vista de confirmación o simplemente redirigir
 })->name('logout.show');
 
+Route::get('/resetpass', function () {
+    return view('ResetPasswordViews/olvidosucontrasennia');
+})->name('password.request'); 
 
+Route::put('/resetpass', [ResetPasswordController::class,'sendResetLinkEmail'])->name ('pass'); 
+
+/*
 // Muestra el formulario de "Olvidó su contraseña"
 Route::get('forgot-password', [ResetPasswordController::class, 'showResetForm'])->name('password.request');
 
 // Procesa el formulario y envía el enlace al correo
-Route::post('forgot-password', [ResetPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::put('forgot-password', [ResetPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 
 // Muestra el formulario para cambiar la contraseña usando el token
 Route::get('reset-password/{token}', [ResetPasswordController::class, 'showResetFormWithToken'])->name('password.reset');
@@ -91,9 +97,9 @@ Route::get('reset-password/{token}', [ResetPasswordController::class, 'showReset
 // Procesa el formulario para guardar la nueva contraseña
 Route::post('reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.update');
 
-// routes/web.php
+// routes/web.php*/
 
-// 🛑 Este middleware es CRÍTICO para que Auth::check() funcione 🛑
+
 Route::middleware('auth')->group(function () {
     
     // 1. Ruta Principal

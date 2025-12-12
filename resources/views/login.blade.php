@@ -8,6 +8,7 @@
 </head>
 <body>
 
+    
     <div class="auth-container">
         <form class="login-form" action="{{ route('login.attempt') }}" method="POST">
             @csrf

@@ -9,22 +9,19 @@ use Illuminate\Support\Facades\Log;
 
 class UsuarioController extends Controller
 {
-    // Eliminamos 'create' porque 'index' hará todo
-    
-    // Método UNIFICADO para LISTAR (GET /usuarios)
     public function index()
     {
-        // 1. Obtener todos los usuarios de la BD
+        //  Obtener todos los usuarios de la BD
         $usuario = DB::connection('mysql')
             ->table('usuario')
             ->where('rol', '!=', 'administrador')
             ->get();
         
-        // 2. Mostrar la vista, pasándole la lista de usuarios
+        // Mostrar la vista, pasándole la lista de usuarios
         return view('usuariosViews.usuarios', ['usuarios' => $usuario]);
     }
 
-    // Método para INSERTAR (POST /usuarios)
+    // Método para insetar usuarios
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -33,7 +30,7 @@ class UsuarioController extends Controller
             'amaterno' => 'required|string',
             'fecha_naci' => 'required|date',
             'tel' => 'required|string|max:10',
-            'correo' => 'required|email|unique:usuario,correo', // Corregido el nombre de la tabla
+            'correo' => 'required|email|unique:usuario,correo',
             'pass' => 'required|min:6',
             'rol' => 'required|in:administrador,sensei,tutor,alumno',
             'fecha_registro' => 'required|date',
@@ -49,13 +46,12 @@ class UsuarioController extends Controller
                     'fecha_naci' => $validated['fecha_naci'],
                     'tel' => $validated['tel'],
                     'correo' => $validated['correo'],
-                    'pass' => Hash::make($validated['pass']), // Cifrado de la contraseña
+                    'pass' => Hash::make($validated['pass']), 
                     'rol' => $validated['rol'],
                     'fecha_registro' => $validated['fecha_registro'],
                 ]);
 
-            // Redirigimos a la ruta INDEX (/usuarios) para ver la tabla actualizada
-            // Usamos 'with' para mostrar un mensaje de éxito
+        
             return redirect()
                 ->route('usuarios.index') // Redirige a GET /usuarios
                 ->with('sessionInsertado', 'true')
@@ -71,27 +67,25 @@ class UsuarioController extends Controller
         }
     }
     
-    // Dejamos los otros métodos vacíos o con la implementación necesaria (como VerLogin)
     public function VerLogin(){
-        // Lógica para ver el formulario de login, si es diferente al de registro
+   
         return view('login');
     }
     public function show(){}
     public function edit($id){
-        // 1. Buscar el usuario por su clave primaria
+     // 1. Buscar el usuario por su clave primaria
         $usuario = DB::connection('mysql')
             ->table('usuario')
-            ->where('id_usuario', $id) // ASUME que la PK es 'id_usuario'
+            ->where('id_usuario', $id) 
             ->first();
 
-        // 2. Manejar el caso de que el usuario no exista
         if (!$usuario) {
             return redirect()->route('usuarios.index')
                              ->with('sessionInsertado', 'false')
                              ->with('mensaje', 'Usuario no encontrado para edición.');
         }
 
-        // 3. Mostrar la vista 'usuariosViews.edit', pasándole el objeto $usuario
+        
         return view('usuariosViews.editarUsu', compact('usuario'));
     }
     public function update(Request $request, $id){
@@ -105,7 +99,7 @@ class UsuarioController extends Controller
             // El correo debe ser único, IGNORANDO el correo del usuario actual por su ID
             'correo' => 'required|email|unique:usuario,correo,'.$id.',id_usuario', 
             'rol' => 'required|in:administrador,sensei,tutor,alumno',
-            'pass' => 'nullable|min:6', // Contraseña es opcional
+            'pass' => 'nullable|min:6', 
         ]);
 
         try {
@@ -119,18 +113,18 @@ class UsuarioController extends Controller
                 'rol' => $validated['rol'],
             ];
 
-            // 2. Manejar la contraseña solo si el campo 'pass' fue llenado
+            // Manejar la contraseña solo si el campo 'pass' fue llenado
             if (!empty($validated['pass'])) {
                 $dataToUpdate['pass'] = Hash::make($validated['pass']);
             }
 
-            // 3. Ejecutar la actualización en la BD
+            // Ejecutar la actualización en la BD
             $updated = DB::connection('mysql')
                 ->table('usuario')
                 ->where('id_usuario', $id)
                 ->update($dataToUpdate);
 
-            // 4. Redirigir al listado con un mensaje de éxito
+            //  Redirigir al listado con un mensaje de éxito
             return redirect()
                 ->route('usuarios.index')
                 ->with('sessionInsertado', 'true')
