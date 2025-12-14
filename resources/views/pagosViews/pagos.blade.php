@@ -1,150 +1,340 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestión de Pagos</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión de Pagos - Dojo</title>
+    
+    <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}"> 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body>
+@include('includes.menu') 
 
- @include('includes.menu') 
-
-  <div class="main-content">
-    <header>
-      <h1>Gestión de Pagos</h1>
+<div class="main-content">
+    
+    {{-- HEADER MODERNO --}}
+    <header class="header">
+        <div>
+            <h1 class="header-title">
+                <i class="bi bi-cash-coin"></i>
+                Gestión de Pagos
+            </h1>
+            <div class="breadcrumb">
+                <a href="{{ route('principal') }}">Dashboard</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Pagos</span>
+            </div>
+        </div>
     </header>
 
-    <div class="content">
-
+    <div class="content-wrapper">
+        
+        {{-- ALERTA DE ÉXITO/ERROR (Usando Blade para mensajes de sesión) --}}
         @if(session('mensaje'))
-            <div id="alerta-temp" class="alert {{ session('sessionInsertado') == 'true' ? 'alert-success' : 'alert-danger' }} text-center" role="alert">
-                {{ session('mensaje') }}
+            @php
+                $isSuccess = session('sessionInsertado') == 'true';
+            @endphp
+            <div class="alert {{ $isSuccess ? 'alert-success' : 'alert-danger' }}">
+                <i class="bi bi-{{ $isSuccess ? 'check-circle-fill' : 'x-circle-fill' }} alert-icon"></i>
+                <div>
+                    <strong>{{ $isSuccess ? '¡Éxito!' : '¡Error!' }}</strong> {{ session('mensaje') }}
+                </div>
             </div>
         @endif
 
-      <form id="registroPago" method="POST" action="{{ route('pagos.store') }}">
-        @csrf
-        <h2>Registrar Pago</h2>
+        {{-- ESTADÍSTICAS --}}
+        
 
-        <div class="mb-3">
-            <label class="form-label">Alumno</label>
-            <select name="id_alumno" required class="form-control">
-                <option value="">Seleccione Alumno</option>
-                @foreach($alumnos as $alumno)
-                    <option value="{{ $alumno->id_alumno }}" {{ old('id_alumno') == $alumno->id_alumno ? 'selected' : '' }}>
-                        {{ $alumno->nombre_completo }}
-                    </option>
-                @endforeach
-            </select>
-            @error('id_alumno')<div class="text-danger mt-1">{{ $message }}</div>@enderror
+        {{-- FORMULARIO --}}
+        <div class="form-container form-theme-red">
+            <div class="form-header">
+                <h2>
+                    <i class="bi bi-credit-card-fill"></i>
+                    Registrar Nuevo Pago
+                </h2>
+                <p>Complete la información del pago realizado por el alumno</p>
+            </div>
+            
+            <form id="registroPago" method="POST" action="{{ route('pagos.store') }}" class="form-body">
+                @csrf
+                
+                <h3 class="section-title-header">
+                    <i class="bi bi-person-circle"></i>
+                    Información del Alumno
+                </h3>
+                <div class="form-grid full-width">
+                    <div class="form-group">
+                        <label class="form-label" for="id_alumno">
+                            Alumno <span class="required">*</span>
+                        </label>
+                        <div class="form-input-wrapper">
+                            <i class="bi bi-person-badge input-icon"></i>
+                            <select name="id_alumno" id="id_alumno" class="form-select" required>
+                                <option value="">Seleccione Alumno</option>
+                                @foreach($alumnos as $alumno)
+                                    <option value="{{ $alumno->id_alumno }}" {{ old('id_alumno') == $alumno->id_alumno ? 'selected' : '' }}>
+                                        {{ $alumno->nombre_completo }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @error('id_alumno')<div class="text-danger mt-1">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+
+                <h3 class="section-title-header">
+                    <i class="bi bi-receipt-cutoff"></i>
+                    Detalles del Pago
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="tipo">
+                            Tipo de Pago <span class="required">*</span>
+                        </label>
+                        <div class="form-input-wrapper">
+                            <i class="bi bi-tag input-icon"></i>
+                            <select name="tipo" id="tipo" class="form-select" required>
+                                <option value="">Seleccione el tipo</option>
+                                <option value="Mensualidad" {{ old('tipo') == 'Mensualidad' ? 'selected' : '' }}>Mensualidad</option>
+                                <option value="Inscripción" {{ old('tipo') == 'Inscripción' ? 'selected' : '' }}>Inscripción</option>
+                                <option value="Examen de Grado" {{ old('tipo') == 'Examen de Grado' ? 'selected' : '' }}>Examen de Grado</option>
+                                <option value="Uniforme" {{ old('tipo') == 'Uniforme' ? 'selected' : '' }}>Uniforme</option>
+                                <option value="Otro" {{ old('tipo') == 'Otro' ? 'selected' : '' }}>Otro</option>
+                            </select>
+                        </div>
+                        @error('tipo')<div class="text-danger mt-1">{{ $message }}</div>@enderror
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="monto">
+                            Monto <span class="required">*</span>
+                        </label>
+                        <div class="form-input-wrapper">
+                            <i class="bi bi-currency-dollar input-icon"></i>
+                            <input type="number" step="0.01" name="monto" id="monto" class="form-input" 
+                                   placeholder="0.00" value="{{ old('monto') }}" required>
+                        </div>
+                        @error('monto')<div class="text-danger mt-1">{{ $message }}</div>@enderror
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="fechaPago">
+                            Fecha de Pago <span class="required">*</span>
+                        </label>
+                        <div class="form-input-wrapper">
+                            <i class="bi bi-calendar-check input-icon"></i>
+                            <input type="date" name="fechaPago" id="fechaPago" class="form-input" 
+                                   value="{{ old('fechaPago', date('Y-m-d')) }}" required>
+                        </div>
+                        @error('fechaPago')<div class="text-danger mt-1">{{ $message }}</div>@enderror
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="estadoPago">
+                            Estado del Pago <span class="required">*</span>
+                        </label>
+                        <div class="form-input-wrapper">
+                            <i class="bi bi-check-circle input-icon"></i>
+                            <select name="estadoPago" id="estadoPago" class="form-select" required>
+                                <option value="">Seleccionar Estado</option>
+                                <option value="Completado" {{ old('estadoPago') == 'Completado' ? 'selected' : '' }}>Completado</option>
+                                <option value="Pendiente" {{ old('estadoPago') == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
+                                <option value="Fallido" {{ old('estadoPago') == 'Fallido' ? 'selected' : '' }}>Fallido</option>
+                            </select>
+                        </div>
+                        @error('estadoPago')<div class="text-danger mt-1">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+
+                <h3 class="section-title-header">
+                    <i class="bi bi-credit-card"></i>
+                    Método y Referencia
+                </h3>
+                <div class="form-grid full-width">
+                    <div class="form-group">
+                        <label class="form-label">
+                            Método de Pago <span class="required">*</span>
+                        </label>
+                        <div class="payment-methods" id="paymentMethods">
+                            <div class="payment-method" data-value="Efectivo">
+                                <i class="bi bi-cash"></i>
+                                <span>Efectivo</span>
+                            </div>
+                            <div class="payment-method" data-value="Tarjeta">
+                                <i class="bi bi-credit-card"></i>
+                                <span>Tarjeta</span>
+                            </div>
+                            <div class="payment-method" data-value="Transferencia">
+                                <i class="bi bi-bank"></i>
+                                <span>Transferencia</span>
+                            </div>
+                            <div class="payment-method" data-value="Otro">
+                                <i class="bi bi-wallet2"></i>
+                                <span>Otro</span>
+                            </div>
+                        </div>
+                        <input type="hidden" name="metodoPago" id="metodoPagoInput" value="{{ old('metodoPago') }}" required>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="motivoPago">
+                            Motivo del Pago <span class="required">*</span>
+                        </label>
+                        <div class="form-input-wrapper">
+                            <i class="bi bi-chat-left-text input-icon"></i>
+                            <input type="text" name="motivoPago" id="motivoPago" class="form-input" 
+                                    placeholder="Ej: Mensualidad Diciembre 2024" value="{{ old('motivoPago') }}" required>
+                        </div>
+                        @error('motivoPago')<div class="text-danger mt-1">{{ $message }}</div>@enderror
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="referenciaPago">
+                            Referencia de Pago (Opcional)
+                        </label>
+                        <div class="form-input-wrapper">
+                            <i class="bi bi-receipt input-icon"></i>
+                            <input type="text" name="referenciaPago" id="referenciaPago" class="form-input" 
+                                    placeholder="Número de referencia o voucher" value="{{ old('referenciaPago') }}">
+                        </div>
+                        @error('referenciaPago')<div class="text-danger mt-1">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="bi bi-x-lg"></i>
+                        Limpiar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i>
+                        Registrar Pago
+                    </button>
+                </div>
+            </form>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Tipo de Pago</label>
-            <input type="text" name="tipo" class="form-control" placeholder="Ej: Mensualidad, Inscripción" value="{{ old('tipo') }}" required>
-            @error('tipo')<div class="text-danger mt-1">{{ $message }}</div>@enderror
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Monto</label>
-            <input type="number" step="0.01" name="monto" class="form-control" placeholder="Monto" value="{{ old('monto') }}" required>
-            @error('monto')<div class="text-danger mt-1">{{ $message }}</div>@enderror
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Fecha de Pago</label>
-            <input type="date" name="fechaPago" class="form-control" value="{{ old('fechaPago', date('Y-m-d')) }}" required>
-            @error('fechaPago')<div class="text-danger mt-1">{{ $message }}</div>@enderror
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Motivo de Pago</label>
-            <input type="text" name="motivoPago" class="form-control" placeholder="Motivo" value="{{ old('motivoPago') }}" required>
-            @error('motivoPago')<div class="text-danger mt-1">{{ $message }}</div>@enderror
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Referencia de Pago (Opcional)</label>
-            <input type="text" name="referenciaPago" class="form-control" placeholder="Referencia/Voucher" value="{{ old('referenciaPago') }}">
-            @error('referenciaPago')<div class="text-danger mt-1">{{ $message }}</div>@enderror
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Estado de Pago</label>
-            <select name="estadoPago" required class="form-control">
-                <option value="">Seleccionar Estado</option>
-                <option value="Pendiente" {{ old('estadoPago') == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
-                <option value="Completado" {{ old('estadoPago') == 'Completado' ? 'selected' : '' }}>Completado</option>
-                <option value="Fallido" {{ old('estadoPago') == 'Fallido' ? 'selected' : '' }}>Fallido</option>
-            </select>
-            @error('estadoPago')<div class="text-danger mt-1">{{ $message }}</div>@enderror
-        </div>
-
-        <button type="submit" class="btn-primary">Registrar Pago</button>
-      </form>
-
-     <div class="table-container">
-                <h2>Usuarios Registrados</h2>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
+        {{-- TABLA DE PAGOS --}}
+        <div class="table-container">
+            <div class="table-header">
+                <h2 class="table-title">
+                    <i class="bi bi-table"></i>
+                    Historial de Pagos ({{ count($pagos) }})
+                </h2>
+                <div class="table-filters">
+                    <select class="filter-select" id="filterEstado">
+                        <option value="">Todos los estados</option>
+                        <option value="Completado">Completado</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Fallido">Fallido</option>
+                    </select>
+                    <div class="search-box">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Buscar pagos...">
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Alumno</th>
+                            <th>Tipo</th>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                            <th>Método</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($pagos as $pago)
                             <tr>
-              <th>Alumno</th>
-              <th>Tipo</th>
-              <th>Monto</th>
-              <th>Fecha de Pago</th>
-              <th>Motivo</th>
-              <th>Referencia</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-   
+                                <td>
+                                    <div class="student-cell">
+                                        {{-- Iniciales del alumno --}}
+                                        <div class="student-avatar">{{ substr($pago->alumno, 0, 1) . substr(strstr($pago->alumno, ' '), 1, 1) }}</div>
+                                        <span class="student-name">{{ $pago->alumno ?? 'N/A' }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ $pago->tipo }}</td>
+                                <td><span class="amount">${{ number_format($pago->monto, 2) }}</span></td>
+                                <td>{{ \Carbon\Carbon::parse($pago->fechaPago)->format('d/m/Y') }}</td>
+                                <td><span class="badge badge-info">{{ $pago->metodoPago ?? 'N/A' }}</span></td>
+                                <td>
+                                    @if($pago->estadoPago == 'Completado')
+                                        <span class="badge badge-success">Completado</span>
+                                    @elseif($pago->estadoPago == 'Pendiente')
+                                        <span class="badge badge-warning">Pendiente</span>
+                                    @else
+                                        <span class="badge badge-danger">Fallido</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn btn-view" title="Ver detalles">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </button>
+                                        <button class="action-btn btn-edit" title="Editar">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
+                                        <button class="action-btn btn-delete" title="Eliminar">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
-                        </thead>
-          <tbody>
-            @foreach($pagos as $pago)
-                <tr>
-                  <td>{{ $pago->alumno ?? 'N/A' }}</td>
-                  <td>{{ $pago->tipo }}</td>
-                  <td><strong>${{ number_format($pago->monto, 2) }}</strong></td>
-                  <td>{{ $pago->fechaPago }}</td>
-                  <td>{{ $pago->motivoPago }}</td>
-                  <td>{{ $pago->referenciaPago }}</td>
-                  <td>
-                    @if($pago->estadoPago == 'Completado')
-                        <span class="badge badge-success">Completado</span>
-                    @elseif($pago->estadoPago == 'Pendiente')
-                        <span class="badge badge-warning">Pendiente</span>
-                    @else
-                        <span class="badge badge-danger">Fallido</span>
-                    @endif
-                  </td>
-                  <td>
-                    <button class="btn btn-sm btn-warning" title="Editar">
-                      <i class="bi bi-pencil-square"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" title="Eliminar">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-            @endforeach
-          </tbody>
-        </table>
-      </div>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center">No hay pagos registrados.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <footer class="footer">
-        <p>© 2025 Sistema de Gestión del Dojo</p>
-    </footer>
-  </div>
+    {{-- Pie de página --}}
+    @include('includes.pie')
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  
-  <script>
+{{-- Script de selección de método de pago y SweetAlert --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Lógica de selección de método de pago ---
+        const paymentMethods = document.querySelectorAll('.payment-method');
+        const metodoPagoInput = document.getElementById('metodoPagoInput');
+        
+        // Función para manejar la selección
+        const handlePaymentSelection = (selectedValue) => {
+            paymentMethods.forEach(option => {
+                option.classList.remove('selected');
+                if (option.getAttribute('data-value') === selectedValue) {
+                    option.classList.add('selected');
+                }
+            });
+            metodoPagoInput.value = selectedValue;
+        };
+
+        paymentMethods.forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                handlePaymentSelection(value);
+            });
+        });
+
+        // Restaurar selección si hay un valor anterior (ej: después de una validación fallida)
+        if (metodoPagoInput.value) {
+            handlePaymentSelection(metodoPagoInput.value);
+        }
+
+        // --- Lógica de SweetAlert del Código 1 ---
         @if(session('sessionInsertado'))
             const icono = '{{ session('sessionInsertado') == 'true' ? 'success' : 'error' }}';
             const titulo = '{{ session('mensaje') }}';
@@ -155,12 +345,9 @@
                 showConfirmButton: false,
                 timer: 2000
             });
-            
-            const alertaTemp = document.getElementById('alerta-temp');
-            if (alertaTemp) {
-                alertaTemp.style.display = 'none';
-            }
         @endif
-    </script>
+    });
+</script>
+
 </body>
 </html>

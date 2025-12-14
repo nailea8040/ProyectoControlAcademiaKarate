@@ -11,6 +11,7 @@
             color: #333;
             background-color: #f4f4f4;
             padding: 20px;
+            margin: 0;
         }
         .container {
             background-color: #fff;
@@ -20,26 +21,85 @@
             max-width: 600px;
             margin: 0 auto;
         }
+        .header {
+            background-color: #dc3545;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin: -30px -30px 20px -30px;
+        }
+        .button {
+            background-color: #dc3545;
+            color: #ffffff;
+            padding: 14px 25px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
         .button:hover {
-            background-color: #0056b3;
+            background-color: #c82333;
+        }
+        .link-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Recuperación de Contraseña</h2>
-    <p>Estimado/a {{ $nombreCompleto }},</p>
-    <p>Hemos recibido una solicitud para restablecer la contraseña de su cuenta. Para proceder con el cambio de contraseña, haga clic en el siguiente botón:</p>
+    <div class="header">
+        <h2 style="margin: 0;">Academia Karate-Do</h2>
+        <p style="margin: 5px 0 0 0;">Recuperación de Contraseña</p>
+    </div>
 
-    <a href="{{ env('APP_URL') }}/password/reset/{{$token}}" style="background-color: #007bff; color: #ffffff; padding: 14px 25px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px; margin-top: 20px;">Restablecer Contraseña</a>
+    <p>Estimado/a <strong>{{ $nombreCompleto }}</strong>,</p>
+    
+    <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta. Para proceder con el cambio de contraseña, haz clic en el siguiente botón:</p>
 
-    <p>Si el botón no funciona, puede copiar y pegar el siguiente enlace en su navegador:</p>
-    <p><a href="{{ env('APP_URL') }}/password/reset/{{$token}}">{{ env('APP_URL') }}/password/reset/{{$token}}</a></p>
+    <div style="text-align: center;">
+        <a href="{{ env('APP_URL') }}/password/reset/{{ $token }}" class="button">
+            Restablecer Contraseña
+        </a>
+    </div>
 
-    <p>Si no ha solicitado este cambio, ignore este correo. Su contraseña actual seguirá siendo válida.</p>
+    <p style="margin-top: 30px;">Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:</p>
+    
+    <div class="link-box">
+        <a href="{{ env('APP_URL') }}/password/reset/{{ $token }}" style="color: #007bff;">
+            {{ env('APP_URL') }}/password/reset/{{ $token }}
+        </a>
+    </div>
 
-    <p>Saludos cordiales,<br>El equipo de Almacén Plus</p>
+    <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; border-radius: 4px; margin: 20px 0;">
+        <strong>⚠️ Importante:</strong>
+        <ul style="margin: 10px 0; padding-left: 20px;">
+            <li>Este enlace expirará en <strong>10 minutos</strong></li>
+            <li>Si no solicitaste este cambio, ignora este correo</li>
+            <li>Tu contraseña actual seguirá siendo válida</li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>Saludos cordiales,<br><strong>El equipo de Academia Karate-Do</strong></p>
+        <p style="margin-top: 15px; font-size: 11px;">
+            Este es un correo automático, por favor no respondas a este mensaje.
+        </p>
+    </div>
 </div>
 
 </body>

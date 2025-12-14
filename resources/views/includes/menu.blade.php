@@ -16,7 +16,13 @@
             @can('acceso-gestion')
                 
                 {{-- Enlace Usuarios --}}
-                <li><a href="{{ route('usuarios.index') }}" title="Usuarios"><i class="bi bi-people"></i></a></li>
+                <li>
+    <a href="{{ route('usuarios.index') }}" 
+       title="Usuarios"
+       class="@if(Request::routeIs('usuarios.*')) activo @endif">
+        <i class="bi bi-people"></i>
+    </a>
+</li>
                 
                 {{-- Enlace Alumnos --}}
                 <li><a href="{{ route('alumnos.index') }}" title="Alumnos"><i class="bi bi-person-badge"></i></a></li>

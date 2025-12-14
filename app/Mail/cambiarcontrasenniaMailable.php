@@ -13,8 +13,9 @@ use Illuminate\Queue\SerializesModels;
 class cambiarcontrasenniaMailable extends Mailable
 {
     use Queueable, SerializesModels;
-    private $nombreCompleto;
-    private $token;
+    
+    public $nombreCompleto;
+    public $token;
 
     public function __construct($nombrecompleto, $token)
     {
@@ -28,7 +29,7 @@ class cambiarcontrasenniaMailable extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address(env("MAIL_FROM_ADDRESS"),'Tomás González'),
+            from: new Address(env("MAIL_FROM_ADDRESS"), 'Academia Karate-Do'),
             subject: 'Cambiar contraseña',
         );
     }

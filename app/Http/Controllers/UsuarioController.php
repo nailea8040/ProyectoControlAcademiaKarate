@@ -11,17 +11,17 @@ class UsuarioController extends Controller
 {
     public function index()
     {
-        //  Obtener todos los usuarios de la BD
+        //
         $usuario = DB::connection('mysql')
             ->table('usuario')
             ->where('rol', '!=', 'administrador')
             ->get();
         
-        // Mostrar la vista, pasándole la lista de usuarios
+        //
         return view('usuariosViews.usuarios', ['usuarios' => $usuario]);
     }
 
-    // Método para insetar usuarios
+    //
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -53,7 +53,7 @@ class UsuarioController extends Controller
 
         
             return redirect()
-                ->route('usuarios.index') // Redirige a GET /usuarios
+                ->route('usuarios.index') 
                 ->with('sessionInsertado', 'true')
                 ->with('mensaje', '¡Usuario registrado con éxito!');
 
@@ -73,7 +73,7 @@ class UsuarioController extends Controller
     }
     public function show(){}
     public function edit($id){
-     // 1. Buscar el usuario por su clave primaria
+     // 
         $usuario = DB::connection('mysql')
             ->table('usuario')
             ->where('id_usuario', $id) 
@@ -89,14 +89,13 @@ class UsuarioController extends Controller
         return view('usuariosViews.editarUsu', compact('usuario'));
     }
     public function update(Request $request, $id){
-        // 1. Validar los datos
+     
         $validated = $request->validate([
             'nombre' => 'required|string',
             'apaterno' => 'required|string',
             'amaterno' => 'required|string',
             'fecha_naci' => 'required|date',
             'tel' => 'required|string|max:20',
-            // El correo debe ser único, IGNORANDO el correo del usuario actual por su ID
             'correo' => 'required|email|unique:usuario,correo,'.$id.',id_usuario', 
             'rol' => 'required|in:administrador,sensei,tutor,alumno',
             'pass' => 'nullable|min:6', 
@@ -113,18 +112,17 @@ class UsuarioController extends Controller
                 'rol' => $validated['rol'],
             ];
 
-            // Manejar la contraseña solo si el campo 'pass' fue llenado
+        
             if (!empty($validated['pass'])) {
                 $dataToUpdate['pass'] = Hash::make($validated['pass']);
             }
 
-            // Ejecutar la actualización en la BD
+            
             $updated = DB::connection('mysql')
                 ->table('usuario')
                 ->where('id_usuario', $id)
                 ->update($dataToUpdate);
 
-            //  Redirigir al listado con un mensaje de éxito
             return redirect()
                 ->route('usuarios.index')
                 ->with('sessionInsertado', 'true')
@@ -132,16 +130,47 @@ class UsuarioController extends Controller
 
         } catch (\Exception $e) {
             Log::error("Error al actualizar usuario ID $id: " . $e->getMessage());
-            // Si falla, regresa al formulario de edición con un error
+            
             return redirect()
-                ->route('editarUsu', $id) // O 'usuarios.edit' si usas la convención RESTful
+                ->route('editarUsu', $id) 
                 ->withInput()
                 ->with('sessionInsertado', 'false')
                 ->with('mensaje', 'Error al actualizar el usuario: ' . $e->getMessage());
         }
     
     }
-    public function destroy($id){}
+    public function destroy($id){
+        try {
+            //
+            $deleted = DB::connection('mysql')
+                ->table('usuario')
+                ->where('id_usuario', $id)
+                ->delete();
+
+            if ($deleted) {
+                $mensaje = '¡Usuario con ID ' . $id . ' eliminado con éxito!';
+                $session = 'true';
+            } else {
+                // 
+                $mensaje = 'No se encontró el usuario con ID ' . $id . ' para eliminar.';
+                $session = 'false';
+            }
+
+            return redirect()
+                ->route('usuarios.index')
+                ->with('sessionInsertado', $session)
+                ->with('mensaje', $mensaje);
+
+        } catch (\Exception $e) {
+           
+            Log::error("Error al eliminar usuario ID $id: " . $e->getMessage());
+
+            return redirect()
+                ->route('usuarios.index')
+                ->with('sessionInsertado', 'false')
+                ->with('mensaje', 'Error al eliminar el usuario. Es posible que tenga registros relacionados.');
+        }
+    }
     public function confirmMail($correo){} // Mantener si es necesaria
 
 }

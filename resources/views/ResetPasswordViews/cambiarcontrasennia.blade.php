@@ -101,8 +101,8 @@
 
 <script>
     $(document).ready(function() {
-        const regex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
-
+        // Mínimo 8 caracteres, al menos 1 mayúscula, 1 minúscula, 1 número, 1 especial
+const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         var Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -152,7 +152,7 @@
                 messages: {
                     contrasennia: {
                         required: "Favor de ingresar una contraseña",
-                        minlength: "La contraseña debe tener al menos 5 caracteres",
+                        minlength: "La contraseña debe tener al menos 6 caracteres",
                         regexContrasennia: "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
                     },
                     recontrasennia:{

@@ -5,18 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sistema Almacén</title>
 
-     <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
-    <!-- icheck bootstrap -->
     <link rel="stylesheet" href="../../plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-    <!-- Theme style -->
     <link rel="stylesheet" href="../../dist/css/adminlte.min.css">
-    <!-- SweetAlert2 -->
     <link rel="stylesheet" href="../../plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
-
     <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}">
     
     <style>
@@ -43,79 +36,72 @@
         <div class="card card-outline card-danger"> 
             
             <div class="card-header text-center">
-                 <h1>Recuperar Contraseña</h1>
+                <h1>Recuperar Contraseña</h1>
             </div>
 
             <div class="card-body">
                 <p class="login-message text-center">¿Olvidaste tu contraseña? <br>Aquí puedes recuperarla fácilmente.</p>
 
-                       <form id="registroForm" action="/login" method="post">
-                @csrf
-               
-                
-                <label for="correo">Correo institucional</label>
-                <input type="text" id="correo" class="form-control" name="correo" placeholder="Ingresa tu correo institucional">
-                
-                <button type="submit">SOLICITAR RESTABLECIMIENTO</button>
+                <form id="registroForm" action="{{ route('password.email') }}" method="POST">
+                    @csrf
+                    
+                    <div class="input-group mb-3">
+                        <input type="email" id="correo" class="form-control" name="correo" placeholder="Ingresa tu correo">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-envelope"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-danger btn-block">SOLICITAR RESTABLECIMIENTO</button>
 
-                <div class="links" style="text-align: center; margin-top: 15px;">
-                    <a href="{{route('login')}}">Volver a Iniciar Sesión</a>
-                </div>
-           
-                <p class="mt-3 mb-1 text-center">
-                    <a href="{{route('login')}}" class="text-center">Iniciar Sesión</a>
-                </p>
-            </div>
+                    <div class="links" style="text-align: center; margin-top: 15px;">
+                        <a href="{{route('login')}}">Volver a Iniciar Sesión</a>
+                    </div>
+                </form>
             </div>
         </div>
-
-<!-- /.login-box -->
-
-<div id="preloader">
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden"> </span>
     </div>
-</div>
 
-{{--*******************************************--}}
-{{--Zona para registrar archivos JS de Jascript--}}
-{{--*******************************************--}}
-<!-- jQuery -->
-<script src="../../plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap 4 -->
-<script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- AdminLTE App -->
-<script src="../../dist/js/adminlte.min.js"></script>
-<!-- SweetAlert2 -->
-<script src="../../plugins/sweetalert2/sweetalert2.min.js"></script>
-<!-- jquery-validation -->
-<script src="../../plugins/jquery-validation/jquery.validate.min.js"></script>
-<script src="../../plugins/jquery-validation/additional-methods.min.js"></script>
+    <div id="preloader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden"></span>
+        </div>
+    </div>
 
-{{--************************************************--}}
-{{--Zona para cargar mensajes de error de tipo Toast--}}
-{{--************************************************--}}
-<script>
-    $(document).ready(function () {
-        var Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000
-        });
+    <script src="../../plugins/jquery/jquery.min.js"></script>
+    <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../dist/js/adminlte.min.js"></script>
+    <script src="../../plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script src="../../plugins/jquery-validation/jquery.validate.min.js"></script>
+    <script src="../../plugins/jquery-validation/additional-methods.min.js"></script>
 
-        @if (session('sessionRecuperarContrasennia') == 'false')
-            Toast.fire({
-                icon: 'success',
-                title: '{{session('mensaje')}}'
-            })
-        @endif
+    <script>
+        $(document).ready(function () {
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000
+            });
 
-        $(function () {
+            @if (session('sessionRecuperarContrasennia') == 'true')
+                Toast.fire({
+                    icon: 'success',
+                    title: '{{session('mensaje')}}'
+                })
+            @elseif (session('sessionRecuperarContrasennia') == 'false')
+                Toast.fire({
+                    icon: 'error',
+                    title: '{{session('mensaje')}}'
+                })
+            @endif
+
             $.validator.setDefaults({
                 submitHandler: function () {
-                    $('#preloader').css('display', 'flex'); // Muestra el preloader
-                    $('#registroForm').submit();
+                    $('#preloader').css('display', 'flex');
+                    $('#registroForm')[0].submit();
                 }
             });
 
@@ -124,28 +110,27 @@
                     correo: {
                         required: true,
                         email: true
-                    },
+                    }
                 },
                 messages: {
                     correo: {
                         required: "Ingresa tu correo electrónico",
                         email: "Ingresa un correo electrónico válido"
-                    },
+                    }
                 },
                 errorElement: 'span',
                 errorPlacement: function (error, element) {
                     error.addClass('invalid-feedback');
                     element.closest('.input-group').append(error);
                 },
-                highlight: function (element, errorClass, validClass) {
+                highlight: function (element) {
                     $(element).addClass('is-invalid');
                 },
-                unhighlight: function (element, errorClass, validClass) {
+                unhighlight: function (element) {
                     $(element).removeClass('is-invalid');
                 }
             });
         });
-    });
-</script>
+    </script>
 </body>
 </html>

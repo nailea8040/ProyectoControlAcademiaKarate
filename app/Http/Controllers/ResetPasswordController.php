@@ -9,147 +9,202 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\cambiarcontrasenniaMailable;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Log;
 
 class ResetPasswordController extends Controller
 {
-    public function showResetForm(){
-
+    public function showResetForm()
+    {
         return view('ResetPasswordViews.olvidosucontrasennia');
     }
 
-    public function showResetFormWithToken($token){
-//        echo $token;
-        try{
-            $res=DB::connection('mysql')
-                ->table("usuarios")
-                ->select("token_expiracion")
-                ->where("token_recuperacion","=",$token)
+    public function showResetFormWithToken($token)
+    {
+        try {
+            $res = DB::table("usuario") 
+                ->select("token_expiracion", "correo")
+                ->where("token_recuperacion", "=", $token)
                 ->first();
-
+ 
             if ($res) {
                 $fechaExpiracion = Carbon::parse($res->token_expiracion);
                 $fechaActual = Carbon::now();
 
-                if ($fechaExpiracion->greaterThan($fechaActual)) { //Verifica si el token aún es vigente
+                if ($fechaExpiracion->greaterThan($fechaActual)) { 
                     return view('ResetPasswordViews.cambiarcontrasennia', [
                         'token' => $token
                     ]);
-                }
-                else{
-                    $MensajeError="El enlace ha expirado";
+                } else {
+                    $MensajeError = "El enlace ha expirado. Por favor, solicita uno nuevo.";
                     return redirect(route('login'))
                         ->with('sessionCambiarContrasennia', 'false')
                         ->with('mensaje', $MensajeError);
                 }
-            }
-            else {
-                $MensajeError="Enlace incorecto o ha expirado";
+            } else {
+                $MensajeError = "Enlace incorrecto o ha expirado.";
                 return redirect(route('login'))
                     ->with('sessionCambiarContrasennia', 'false')
                     ->with('mensaje', $MensajeError);
             }
-        }
-    
-        catch (\Exception $e){
-            $MensajeError="Hubo un error en el servidor";
-            return redirect(route('password.reset'))
+        } catch (\Exception $e) {
+            Log::error('Error en showResetFormWithToken: ' . $e->getMessage());
+            $MensajeError = "Hubo un error en el servidor.";
+            return redirect(route('login'))
                 ->with('sessionCambiarContrasennia', 'false')
-                ->with('mensaje', $MensajeError); //With envía en una session flash dos claves y sus valores
+                ->with('mensaje', $MensajeError); 
         }
     }
 
-    public function sendResetLinkEmail(Request $request){
-    $correo = $request->input('correo'); // Usar input('email') ya que el campo en la vista es 'email'
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate([
+            'correo' => 'required|email',
+        ], [
+            'correo.required' => 'El correo electrónico es obligatorio.',
+            'correo.email' => 'Por favor ingresa un correo electrónico válido.',
+        ]);
 
-    try{
-        // 1. Buscar al usuario y obtener sus datos importantes
-        $res = DB::table('usuario')
-            ->select("id_usuario", "nombre", "activo", "correo") // Corregido: asumimos nombre para el Mailable
-            ->where("correo", "=", $correo) // Corregido: Asumo que la columna es 'correo'
-            ->first();
+        $correo = $request->input('correo');
 
-        if ($res) { // Corregido: Verificar si el resultado existe
-            
-            // 2. Comprobar si el usuario está activo (asumo que 1 es activo)
-            if ($res->activo == 1) {
-                $nombre = $res->nombre; // Usamos el nombre para el correo
+        try {
+            $res = DB::table('usuario')
+                ->select("id_usuario", "nombre", "correo") 
+                ->where("correo", "=", $correo)
+                ->first();
+
+            if ($res) {
+                $nombre = $res->nombre; 
                 $token = Str::uuid()->toString();
                 $expiraEn = Carbon::now()->addMinutes(10);
 
-                // 3. Insertar en la base de datos el token y la fecha de expiración
                 DB::table('usuario')
-                    ->where('correo', $correo) // Corregido: Columna 'correo'
+                    ->where('correo', $correo) 
                     ->update([
                         'token_recuperacion' => $token,
                         'token_expiracion' => $expiraEn,
                     ]);
 
-                // 4. Enviar el correo
-                Mail::to($correo)
-                    ->send(new cambiarcontrasenniaMailable($nombre, $token));
+                Mail::to($correo)->send(new cambiarcontrasenniaMailable($nombre, $token));
+
+                Log::info("Correo de recuperación enviado a: {$correo} con token: {$token}");
 
                 $Mensaje = "¡Listo! Revisa tu correo electrónico para el enlace de recuperación.";
                 return redirect('/login')
+                    ->with('sessionRecuperarContrasennia', 'true') 
+                    ->with('mensaje', $Mensaje);
+        
+            } else {
+                $Mensaje = "Si el correo existe en nuestros registros, recibirás instrucciones.";
+                return redirect(route('password.request'))
                     ->with('sessionRecuperarContrasennia', 'true')
                     ->with('mensaje', $Mensaje);
-            } else {
-                // Usuario encontrado, pero no activo
-                $Mensaje = "Tu cuenta aún no ha sido confirmada o está inactiva.";
-                return redirect(route('password.request'))
-                    ->with('sessionRecuperarContrasennia', 'false')
-                    ->with('mensaje', $Mensaje);
-                 
             }
-        } else {
-            // Usuario no encontrado
-            $Mensaje = "Este correo electrónico no existe en nuestros registros.";
+        } catch (\Exception $e) {
+            Log::error('Error en sendResetLinkEmail: ' . $e->getMessage());
+            
+            $MensajeError = "Hubo un error al enviar el correo.";
             return redirect(route('password.request'))
                 ->with('sessionRecuperarContrasennia', 'false')
-                ->with('mensaje', $Mensaje);
+                ->with('mensaje', $MensajeError); 
         }
     }
-    // ... Manejo de excepciones (Swift_TransportException y Exception general) ...
-    catch (\Exception $e){ 
-        $MensajeError="Hubo un error con las credenciales de correo (revisa tu archivo .env)";
-        return redirect(route('password.request'))
-            ->with('sessionRecuperarContrasennia', 'false')
-            ->with('mensaje', $MensajeError); 
-    }
-    catch (\Exception $e){
-        $MensajeError="Hubo un error en el servidor";
-        return redirect(route('password.request'))
-            ->with('sessionRecuperarContrasennia', 'false')
-            ->with('mensaje', $MensajeError); 
-    }
-}
 
-    public function resetPassword(Request $request){
-    $contrasennia = $request->input('password');
-    $contraseniaCifrada = Hash::make($contrasennia);
-    $token = $request->mytoken;
-
-    try{
-        $affectedRows = DB::table('usuario') // Corregido: Usar 'usuarios'
-            ->where('token_recuperacion', $token)
-            ->update([
-                'pass' => $contraseniaCifrada, // Corregido: Usar el nombre de columna correcto
-                'token_recuperacion' => null, // Opcional pero recomendado: Invalidar el token después de usarlo
-                'token_expiracion' => null, // Opcional pero recomendado: Invalidar la expiración
+    public function resetPassword(Request $request)
+    {
+        // LOG PARA DEBUG
+        Log::info('=== INICIO resetPassword ===');
+        Log::info('Datos recibidos:', $request->all());
+        Log::info('Token recibido:', ['token' => $request->mytoken]);
+        
+        try {
+            // Validación
+            $validated = $request->validate([
+                'contrasennia' => 'required|min:8',
+                'recontrasennia' => 'required|same:contrasennia',
+                'mytoken' => 'required'
             ]);
 
-        $MensajeError="Cambio de contraseña exitoso. Ya puedes iniciar sesión.";
-        return redirect(route('login'))
-            ->with('sessionCambiarContrasennia', 'true')
-            ->with('mensaje', $MensajeError);
+            Log::info('Validación pasada correctamente');
 
+            $contrasennia = $request->input('contrasennia'); 
+            $token = $request->mytoken;
+
+            Log::info('Token a buscar:', ['token' => $token]);
+
+            // Buscar usuario con el token
+            $usuario = DB::table('usuario')
+                ->where('token_recuperacion', $token)
+                ->first();
+
+            Log::info('Usuario encontrado:', ['usuario' => $usuario ? 'SÍ' : 'NO']);
+
+            if (!$usuario) {
+                Log::warning('Token no encontrado en la BD');
+                $MensajeError = "El enlace no es válido o ha expirado.";
+                return redirect(route('login'))
+                    ->with('sessionCambiarContrasennia', 'false')
+                    ->with('mensaje', $MensajeError);
+            }
+
+            // Verificar expiración
+            $fechaExpiracion = Carbon::parse($usuario->token_expiracion);
+            $fechaActual = Carbon::now();
+
+            Log::info('Verificación de fechas:', [
+                'expiracion' => $fechaExpiracion->toDateTimeString(),
+                'actual' => $fechaActual->toDateTimeString(),
+                'valido' => $fechaExpiracion->greaterThan($fechaActual)
+            ]);
+
+            if (!$fechaExpiracion->greaterThan($fechaActual)) {
+                Log::warning('Token expirado');
+                $MensajeError = "El enlace ha expirado.";
+                return redirect(route('login'))
+                    ->with('sessionCambiarContrasennia', 'false')
+                    ->with('mensaje', $MensajeError);
+            }
+
+            // Cifrar contraseña
+            $contraseniaCifrada = Hash::make($contrasennia);
+            Log::info('Contraseña cifrada correctamente');
+
+            // Actualizar contraseña
+            $affectedRows = DB::table('usuario') 
+                ->where('token_recuperacion', $token)
+                ->update([
+                    'pass' => $contraseniaCifrada, 
+                    'token_recuperacion' => null, 
+                    'token_expiracion' => null, 
+                ]);
+
+            Log::info('Filas afectadas:', ['rows' => $affectedRows]);
+
+            if ($affectedRows > 0) {
+                Log::info('¡Contraseña actualizada exitosamente!');
+                
+                $Mensaje = "¡Contraseña cambiada exitosamente! Ya puedes iniciar sesión.";
+                return redirect(route('login'))
+                    ->with('sessionCambiarContrasennia', 'true') 
+                    ->with('mensaje', $Mensaje);
+            } else {
+                Log::error('No se actualizó ninguna fila');
+                throw new \Exception("No se pudo actualizar la contraseña.");
+            }
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Error de validación:', ['errors' => $e->errors()]);
+            return back()->withErrors($e->errors())->withInput();
+            
+        } catch (\Exception $e) {
+            Log::error('Error general en resetPassword:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            $MensajeError = "Hubo un error al actualizar la contraseña: " . $e->getMessage();
+            return redirect(route('login'))
+                ->with('sessionCambiarContrasennia', 'false')
+                ->with('mensaje', $MensajeError); 
+        }
     }
-    // ... Manejo de excepciones ...
-    catch (\Exception $e){
-        $MensajeError="Hubo un error al actualizar la contraseña.";
-        return redirect(route('password.reset', ['token' => $token]))
-            ->with('sessionCambiarContrasennia', 'false')
-            ->with('mensaje', $MensajeError); 
-    }
-  }
 }
