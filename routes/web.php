@@ -52,6 +52,8 @@ Route::middleware('auth')->group(function () {
         'edit' => 'editarUsu',
     ]);
     Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+    // Ruta para cambiar el estado de activo/inactivo (Método POST o PUT/PATCH)
+Route::post('/usuarios/{id}/toggle-active', [UsuarioController::class, 'toggleActive'])->name('usuarios.toggleActive');    
     
     // Alumnos
     Route::resource('alumnos', AlumnoController::class)->only(['index', 'store']);

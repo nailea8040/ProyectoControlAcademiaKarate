@@ -7,9 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
-    <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}">
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}"> <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
 </head>
 <body>
@@ -115,9 +113,9 @@
                             <div class="form-input-wrapper">
                                 <i class="bi bi-telephone input-icon"></i>
                                 <input type="text" class="form-input" id="tel" name="tel" placeholder="(000) 000-0000" required 
-               minlength="10" 
-               maxlength="10" 
-               pattern="[0-9]{10}" {{-- Opcional: Asegura que sean solo dígitos --}}>
+                                minlength="10" 
+                                maxlength="10" 
+                                pattern="[0-9]{10}">
                             </div>
                         </div>
                     </div>
@@ -133,10 +131,10 @@
                                 <i class="bi bi-lock input-icon"></i>
                                 <input type="password" class="form-input" id="pass" name="pass" 
                                 required 
-               minlength="8" 
-               pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':&quot;\\|,.<>\/?]).{8,}"
-               title="La contraseña debe tener al menos 8 caracteres, incluyendo al menos una letra mayúscula y un símbolo (o carácter especial)."
-        >
+                                minlength="8" 
+                                pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':&quot;\\|,.<>\/?]).{8,}"
+                                title="La contraseña debe tener al menos 8 caracteres, incluyendo al menos una letra mayúscula y un símbolo (o carácter especial)."
+                                >
                                 
                                 <button type="button" class="toggle-password" onclick="togglePassword()">
                                     <i class="bi bi-eye" id="toggleIcon"></i>
@@ -206,7 +204,8 @@
                                 <th>Teléfono</th>
                                 <th>Fecha Nac.</th>
                                 <th>Fecha Reg.</th>
-                                <th>Acciones</th>
+                                <th class="text-center">Estado</th> 
+                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         
@@ -240,33 +239,51 @@
                                     <td>{{ date('d/m/Y', strtotime($usuario->fecha_naci)) }}</td>
                                     <td>{{ date('d/m/Y', strtotime($usuario->fecha_registro)) }}</td>
                                     
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button type="button" class="action-btn btn-edit edit-user-btn" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#editUserModal" 
-                                                data-id="{{ $usuario->id_usuario }}"
-                                                data-nombre="{{ $usuario->nombre }}"
-                                                data-apaterno="{{ $usuario->apaterno }}"
-                                                data-amaterno="{{ $usuario->amaterno }}"
-                                                data-fecha_naci="{{ $usuario->fecha_naci }}"
-                                                data-tel="{{ $usuario->tel }}"
-                                                data-correo="{{ $usuario->correo }}"
-                                                data-rol="{{ $usuario->rol }}"
-                                                title="Editar">
-                                                <i class="bi bi-pencil-fill"></i>
-                                            </button>
-                                            
-                                            <form action="{{ route('usuarios.destroy', $usuario->id_usuario) }}" method="POST" style="display:inline;" onsubmit="return confirmarEliminacion(event);">
-                                                @csrf
-                                                @method('DELETE') 
-                                                
-                                                <button type="submit" class="action-btn btn-delete" title="Eliminar">
-                                                    <i class="bi bi-trash-fill"></i>
-                                                </button>
-                                            </form>
-                                        </div>
+                                    <td class="text-center">
+                                        <form id="toggleForm-{{ $usuario->id_usuario }}" action="{{ route('usuarios.toggleActive', $usuario->id_usuario) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            <label class="switch" title="{{ $usuario->estado == 1 ? 'Activo (Clic para desactivar)' : 'Inactivo (Clic para activar)' }}">
+                                                <input type="checkbox" name="activo" {{ $usuario->estado == 1 ? 'checked' : '' }} onchange="confirmarCambioEstado(event, {{ $usuario->id_usuario }}, '{{ $usuario->nombre }} {{ $usuario->apaterno }}', this.checked);">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </form>
+                                        <span class="badge {{ $usuario->estado == 1 ? 'badge-active' : 'badge-inactive' }} mt-1 d-block">{{ $usuario->estado == 1 ? 'Activo' : 'Inactivo' }}</span>
                                     </td>
+                                   {{-- usuariosViews/usuarios.blade.php (dentro del @foreach) --}}
+
+<td class="text-center">
+    <div class="action-buttons">
+        <button type="button" class="action-btn btn-edit edit-user-btn" 
+            data-bs-toggle="modal" 
+            data-bs-target="#editUserModal" 
+            data-id="{{ $usuario->id_usuario }}"
+            data-nombre="{{ $usuario->nombre }}"
+            data-apaterno="{{ $usuario->apaterno }}"
+            data-amaterno="{{ $usuario->amaterno }}"
+            data-fecha_naci="{{ $usuario->fecha_naci }}"
+            data-tel="{{ $usuario->tel }}"
+            data-correo="{{ $usuario->correo }}"
+            data-rol="{{ $usuario->rol }}"
+            title="Editar">
+            <i class="bi bi-pencil-fill"></i>
+        </button>
+        
+        @if ($usuario->rol !== 'administrador')
+            <form action="{{ route('usuarios.destroy', $usuario->id_usuario) }}" method="POST" style="display:inline;" onsubmit="return confirmarEliminacion(event);">
+                @csrf
+                @method('DELETE') 
+                
+                <button type="submit" class="action-btn btn-delete" title="Eliminar">
+                    <i class="bi bi-trash-fill"></i>
+                </button>
+            </form>
+        @else
+            <button type="button" class="action-btn btn-disabled" title="No se puede eliminar un administrador" disabled style="cursor: not-allowed; opacity: 0.6; background-color: #f8d7da;">
+                <i class="bi bi-x-octagon-fill"></i>
+            </button>
+        @endif
+    </div>
+</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -348,7 +365,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // 1. Lógica de SweetAlert y eliminación (Conservada)
+        // ... (Tu código JavaScript para SweetAlert, eliminación y búsqueda se mantiene) ...
+
         @if(session('sessionInsertado'))
             const icono = '{{ session('sessionInsertado') == 'true' ? 'success' : 'error' }}';
             const titulo = '{{ session('mensaje') }}';
@@ -371,7 +389,7 @@
             
             Swal.fire({
                 title: '¿Estás seguro de eliminar?',
-                text: "¡No podrás recuperar este registro!",
+                text: "¡No podrás recuperar este registro! Esta es una eliminación permanente.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -386,9 +404,35 @@
             return false;
         }
 
-        // Lógica para mostrar/ocultar la contraseña (Nueva funcionalidad del diseño)
+        function confirmarCambioEstado(event, userId, userName, isChecked) {
+            event.preventDefault(); 
+            const form = document.getElementById(`toggleForm-${userId}`);
+            
+            const accion = isChecked ? 'ACTIVAR' : 'DESACTIVAR';
+            const mensaje = isChecked 
+                ? `¿Estás seguro de **activar** al usuario ${userName}? El usuario podrá ingresar al sistema.`
+                : `¿Estás seguro de **desactivar** al usuario ${userName}? El usuario NO podrá ingresar al sistema.`;
+
+            Swal.fire({
+                title: `Confirmar ${accion} Usuario`,
+                html: mensaje,
+                icon: isChecked ? 'question' : 'warning',
+                showCancelButton: true,
+                confirmButtonColor: isChecked ? '#28a745' : '#dc3545', 
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: `Sí, ${accion}`,
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                } else {
+                    event.target.checked = !isChecked;
+                }
+            });
+        }
+        
         function togglePassword() {
-            const passwordInput = document.getElementById('pass'); // ID en el formulario de registro
+            const passwordInput = document.getElementById('pass'); 
             const toggleIcon = document.getElementById('toggleIcon');
             
             if (passwordInput.type === 'password') {
@@ -402,10 +446,8 @@
             }
         }
 
-        // 2. LÓGICA JAVASCRIPT/JQUERY PARA EL FORMULARIO FLOTANTE (MODAL DE EDICIÓN) - Conservada
         $(document).ready(function() {
             $('.edit-user-btn').on('click', function() {
-                // Obtener los datos del usuario desde los atributos data-
                 const userId = $(this).data('id');
                 const nombre = $(this).data('nombre');
                 const apaterno = $(this).data('apaterno');
@@ -415,7 +457,6 @@
                 const correo = $(this).data('correo');
                 const rol = $(this).data('rol');
 
-                // 3. Rellenar los campos del Modal
                 $('#edit_id_usuario').val(userId);
                 $('#edit_nombre').val(nombre);
                 $('#edit_apaterno').val(apaterno);
@@ -425,15 +466,12 @@
                 $('#edit_correo').val(correo);
                 $('#edit_rol').val(rol);
 
-                // 4. Configurar la URL de acción del formulario de edición
                 const updateUrl = `/usuarios/${userId}`; 
                 $('#editForm').attr('action', updateUrl);
                 
-                // Limpiar el campo de la contraseña al abrir el modal
                 $('#edit_pass').val('');
             });
             
-            // 3. LÓGICA PARA LA BARRA DE BÚSQUEDA (Nueva funcionalidad)
             $('#searchInput').on('keyup', function() {
                 const searchText = $(this).val().toLowerCase();
                 $('#usersTable tbody tr').each(function() {

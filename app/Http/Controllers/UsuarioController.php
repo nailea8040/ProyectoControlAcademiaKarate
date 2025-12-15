@@ -14,7 +14,7 @@ class UsuarioController extends Controller
         //
         $usuario = DB::connection('mysql')
             ->table('usuario')
-            ->where('rol', '!=', 'administrador')
+            //->where('rol', '!=', 'administrador')
             ->get();
         
         //
@@ -171,6 +171,100 @@ class UsuarioController extends Controller
                 ->with('mensaje', 'Error al eliminar el usuario. Es posible que tenga registros relacionados.');
         }
     }
+
+    public function toggleActive($id)
+    {
+        try {
+            // 1. Obtener el usuario actual
+            $usuario = DB::connection('mysql')
+                ->table('usuario')
+                ->where('id_usuario', $id)
+                ->first();
+
+            if (!$usuario) {
+                return redirect()->route('usuarios.index')
+                    ->with('sessionInsertado', 'false')
+                    ->with('mensaje', 'Usuario no encontrado.');
+            }
+
+            // 2. Determinar el nuevo estado
+            // Si estaba activo (1), el nuevo estado es inactivo (0), y viceversa.
+            $nuevoEstado = $usuario->estado == 1 ? 0 : 1;
+            $accion = $nuevoEstado == 1 ? 'Activado' : 'Inactivo';
+
+            // 3. Actualizar el estado en la base de datos
+            DB::connection('mysql')
+                ->table('usuario')
+                ->where('id_usuario', $id)
+                ->update(['estado' => $nuevoEstado]);
+
+            return redirect()
+                ->route('usuarios.index')
+                ->with('sessionInsertado', 'true')
+                ->with('mensaje', "¡Usuario ID $id ha sido $accion con éxito!");
+
+        } catch (\Exception $e) {
+            Log::error("Error al cambiar estado de usuario ID $id: " . $e->getMessage());
+            
+            return redirect()
+                ->route('usuarios.index')
+                ->with('sessionInsertado', 'false')
+                ->with('mensaje', "Error al cambiar el estado del usuario.");
+        }
+    }
+
+    public function ProcesarLogin(Request $request)
+{
+    // 1. Validar las credenciales (Nota: el campo de contraseña se llama 'contra' en tu vista)
+    $request->validate([
+        'correo' => 'required|email',
+        'contra' => 'required',
+    ]);
+
+    $correo = $request->input('correo');
+    $password = $request->input('contra'); // Usamos 'contra'
+
+    // 2. Buscar al usuario por correo
+    $usuario = DB::connection('mysql')
+        ->table('usuario')
+        ->where('correo', $correo)
+        ->first();
+
+    // 3. Verificar si el usuario existe y si la contraseña es correcta
+    if ($usuario && Hash::check($password, $usuario->pass)) {
+        
+        // ===============================================
+        // ⭐ RESTRICCIÓN DE ESTADO INACTIVO
+        // ===============================================
+        if (isset($usuario->estado) && $usuario->estado == 0) {
+            // El usuario existe y está inactivo (estado = 0)
+            return redirect()
+                ->route('verLogin')
+                // Usamos 'error_login' para el mensaje de SweetAlert
+                ->with('error_login', 'Tu cuenta ha sido desactivada. Por favor, contacta al administrador.');
+        }
+        // ===============================================
+        
+        // 4. Iniciar sesión (Guardar en sesión)
+        $request->session()->put('usuario_logueado', [
+            'id' => $usuario->id_usuario,
+            'nombre' => $usuario->nombre,
+            'rol' => $usuario->rol,
+            'estado' => $usuario->estado,
+        ]);
+
+        // Redirección al dashboard o página principal
+        return redirect()->route('dashboard.index'); // Asume que tienes una ruta llamada 'dashboard.index'
+        
+    } else {
+        // Credenciales inválidas
+        return redirect()
+            ->route('verLogin')
+            // Mensaje genérico para mantener la seguridad (no especificar si es el correo o la contraseña)
+            ->with('error_login', 'Credenciales inválidas. Verifica tu correo y contraseña.');
+    }
+}
+
     public function confirmMail($correo){} // Mantener si es necesaria
 
 }

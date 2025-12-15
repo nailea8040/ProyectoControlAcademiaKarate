@@ -25,14 +25,28 @@
     </div>
 
     <script>
-        /* Ejemplo de uso:
+    // Verifica si existe un mensaje de error de login en la sesión (que configuramos en el controlador)
+    @if(session('error_login'))
         Swal.fire({
-            title: 'Bienvenido',
-            text: 'Usuario de prueba',
-            icon: 'success'
+            title: 'Error de acceso',
+            text: '{{ session('error_login') }}',
+            icon: 'error',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#e53935' // Usamos el color rojo del Dojo
         });
-        */
-    </script>
+    @endif
+    
+    // Si hay errores de validación (ej: campo vacío), los mostramos
+    @if($errors->any())
+        Swal.fire({
+            title: 'Datos Faltantes',
+            html: '<ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
+            icon: 'warning',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#f57c00' // Usamos un color de advertencia
+        });
+    @endif
+</script>
 
 </body>
 </html>

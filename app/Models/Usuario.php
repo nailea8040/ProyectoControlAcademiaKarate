@@ -26,6 +26,9 @@ class Usuario extends Authenticatable // Cambiado de 'User' a 'Usuario'
         'correo', // Coincide con tu columna 'correo'
         'pass',
         'rol',    // **CRÍTICO: Incluir 'rol' para que se guarde**
+        'fecha_registro',
+        'activo', // Asegúrate de incluir el campo 'activo' si lo usas
+        
     ];
 
     // 🛑 4. Atributos ocultos al serializar (usando 'pass' en lugar de 'password')

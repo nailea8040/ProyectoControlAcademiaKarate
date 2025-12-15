@@ -3,101 +3,98 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sistema Almacén</title>
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
-    <link rel="stylesheet" href="../../plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-    <link rel="stylesheet" href="../../dist/css/adminlte.min.css">
-    <link rel="stylesheet" href="../../plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
-    <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}">
+    <title>Recuperar Contraseña - Sistema Dojo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <style>
-        #preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .spinner-border {
-            width: 3rem;
-            height: 3rem;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}">
 </head>
-<body class="dojo-background hold-transition login-page">
-    <div class="login-box">
-        <div class="card card-outline card-danger"> 
-            
-            <div class="card-header text-center">
-                <h1>Recuperar Contraseña</h1>
+<body class="page-recovery">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+
+    <div class="recovery-container">
+        <div class="recovery-header">
+            <div class="icon-container">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <h1>Recuperar Contraseña</h1>
+            <p>No te preocupes, te ayudaremos a recuperar el acceso a tu cuenta</p>
+        </div>
+
+        <div class="recovery-body">
+            <div class="info-box">
+                <p>
+                    <i class="bi bi-info-circle-fill" style="margin-right: 8px; color: #e53935;"></i>
+                    Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+                </p>
             </div>
 
-            <div class="card-body">
-                <p class="login-message text-center">¿Olvidaste tu contraseña? <br>Aquí puedes recuperarla fácilmente.</p>
-
-                <form id="registroForm" action="{{ route('password.email') }}" method="POST">
-                    @csrf
-                    
-                    <div class="input-group mb-3">
-                        <input type="email" id="correo" class="form-control" name="correo" placeholder="Ingresa tu correo">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
-                            </div>
-                        </div>
+            <form id="registroForm" action="{{ route('password.email') }}" method="POST">
+                @csrf
+                
+                <div class="form-group">
+                    <label class="form-label">Correo Electrónico</label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-envelope-fill input-icon"></i>
+                        <input type="email" 
+                               class="form-input" 
+                               id="correo" 
+                               name="correo" 
+                               placeholder="tu@ejemplo.com"
+                               required>
+                        <span class="invalid-feedback" style="display: none;"></span>
                     </div>
-                    
-                    <button type="submit" class="btn btn-danger btn-block">SOLICITAR RESTABLECIMIENTO</button>
+                </div>
 
-                    <div class="links" style="text-align: center; margin-top: 15px;">
-                        <a href="{{route('login')}}">Volver a Iniciar Sesión</a>
-                    </div>
-                </form>
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-send-fill"></i>
+                    Enviar Enlace de Recuperación
+                </button>
+            </form>
+
+            <div class="back-link">
+                <a href="{{ route('login') }}">
+                    <i class="bi bi-arrow-left"></i>
+                    Volver a Iniciar Sesión
+                </a>
             </div>
         </div>
     </div>
 
     <div id="preloader">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden"></span>
-        </div>
+        <div class="spinner"></div>
     </div>
 
-    <script src="../../plugins/jquery/jquery.min.js"></script>
-    <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../../dist/js/adminlte.min.js"></script>
-    <script src="../../plugins/sweetalert2/sweetalert2.min.js"></script>
-    <script src="../../plugins/jquery-validation/jquery.validate.min.js"></script>
-    <script src="../../plugins/jquery-validation/additional-methods.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
 
     <script>
         $(document).ready(function () {
-            var Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 4000
-            });
-
+            // SweetAlert Toast (Lógica sin cambios)
             @if (session('sessionRecuperarContrasennia') == 'true')
-                Toast.fire({
+                Swal.fire({
                     icon: 'success',
-                    title: '{{session('mensaje')}}'
-                })
+                    title: '{{ session('mensaje') }}',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true
+                });
             @elseif (session('sessionRecuperarContrasennia') == 'false')
-                Toast.fire({
+                Swal.fire({
                     icon: 'error',
-                    title: '{{session('mensaje')}}'
-                })
+                    title: '{{ session('mensaje') }}',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true
+                });
             @endif
 
+            // Validación del formulario (Lógica sin cambios)
             $.validator.setDefaults({
                 submitHandler: function () {
                     $('#preloader').css('display', 'flex');
@@ -121,7 +118,7 @@
                 errorElement: 'span',
                 errorPlacement: function (error, element) {
                     error.addClass('invalid-feedback');
-                    element.closest('.input-group').append(error);
+                    element.closest('.input-wrapper').append(error);
                 },
                 highlight: function (element) {
                     $(element).addClass('is-invalid');
