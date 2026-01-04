@@ -34,6 +34,7 @@ class UsuarioController extends Controller
             'pass' => 'required|min:6',
             'rol' => 'required|in:administrador,sensei,tutor,alumno',
             'fecha_registro' => 'required|date',
+            'estado' => 1,
         ]);
 
         try {
@@ -49,6 +50,8 @@ class UsuarioController extends Controller
                     'pass' => Hash::make($validated['pass']), 
                     'rol' => $validated['rol'],
                     'fecha_registro' => $validated['fecha_registro'],
+                    'estado' => 1,
+
                 ]);
 
         

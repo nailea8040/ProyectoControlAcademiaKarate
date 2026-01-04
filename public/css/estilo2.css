@@ -1184,6 +1184,8 @@ input:checked + .slider:before {
         grid-template-columns: 1fr;
     }
 }
+
+
 /* ============================================ */
 /* ESTILOS HERO/LANDING PAGE PARA DASHBOARD PRINCIPAL */
 /* ============================================ */
@@ -1949,4 +1951,331 @@ input:checked + .slider:before {
 
 .modern-button-action:hover {
     background-color: #c0392b !important;
+}
+
+
+/* Estilos para las tarjetas tipo Programa */
+.program-card {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: #fff;
+    position: relative;
+    z-index: 1;
+}
+
+.program-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.program-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 8px;
+    background: var(--karate-red);
+}
+
+.program-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background: var(--color-primary-light-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    color: var(--karate-red);
+    font-size: 2.5rem;
+    transition: 0.3s;
+}
+
+.program-card:hover .program-icon-wrapper {
+    background: var(--karate-red);
+    color: #fff;
+    transform: rotateY(360deg);
+}
+
+.program-title {
+    font-weight: 800;
+    color: var(--karate-dark);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.program-benefit-list {
+    padding: 0;
+    list-style: none;
+    margin-top: 20px;
+}
+
+.program-benefit-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.9rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+}
+
+.program-benefit-list li i {
+    color: var(--karate-red);
+    margin-right: 10px;
+}
+
+
+
+
+/* ===================================
+   CARDS MODERNAS
+   =================================== */
+.card-modern {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(0,0,0,0.05);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--karate-red), #d43f3d);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.card-modern:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+.card-modern:hover::before {
+    transform: scaleX(1);
+}
+
+.icon-box {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--karate-red), #d43f3d);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.card-modern:hover .icon-box {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Estilos para la sección de Horarios */
+.schedule-card {
+    border: none;
+    border-radius: 15px;
+    background: #ffffff;
+    transition: transform 0.3s ease;
+    border-left: 5px solid var(--karate-red); /* Borde lateral oscuro por defecto */
+}
+
+.schedule-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* Resaltado para el día actual o días especiales */
+.schedule-card.active-day {
+    border-left-color: var(--karate-red);
+}
+
+.time-badge {
+    background-color: var(--color-primary-light-bg);
+    color: var(--karate-red);
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    display: inline-block;
+}
+
+.class-name {
+    font-weight: 600;
+    color: var(--karate-dark);
+    margin-bottom: 0;
+}
+
+.schedule-icon {
+    font-size: 1.5rem;
+    color: var(--karate-red);
+}
+
+/* Estilos para el Formulario de Contacto Moderno */
+.contact-form-container {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+}
+
+.contact-form-container .form-label {
+    font-weight: 600;
+    color: var(--karate-dark);
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.contact-form-container .form-control {
+    border: 2px solid #f1f1f1;
+    border-radius: 12px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+    background-color: #fcfcfc;
+}
+
+.contact-form-container .form-control:focus {
+    border-color: var(--karate-red);
+    box-shadow: 0 0 0 4px rgba(232, 86, 84, 0.1);
+    background-color: #fff;
+    outline: none;
+}
+
+.contact-form-container textarea.form-control {
+    resize: none;
+}
+
+.btn-send-contact {
+    background-color: var(--karate-red);
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn-send-contact:hover {
+    background-color: #d43f3d;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-btn);
+    color: white;
+}
+
+/* ===================================
+   CONTACT FORM
+   =================================== */
+.contact-info-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.contact-info-card:hover {
+    border-color: var(--karate-red);
+    transform: translateX(-5px);
+}
+
+.contact-icon {
+    width: 55px;
+    height: 55px;
+    background: linear-gradient(135deg, var(--karate-red), #d43f3d);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+
+/* ===================================
+   FOOTER
+   =================================== */
+.footer-modern {
+    background: linear-gradient(135deg, var(--karate-dark), #3a3a3a);
+    padding: 3rem 0;
+}
+
+.social-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.social-icon:hover {
+    background: var(--karate-red);
+    transform: translateY(-5px);
+    color: white;
+}
+
+/* ===================================
+   GALERÍA MULTIMEDIA
+   =================================== */
+.gallery-item {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    background: #000;
+}
+
+.gallery-item:hover {
+    transform: translateY(-5px);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+.gallery-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(232, 86, 84, 0.7); /* Usando tu karate-red con transparencia */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: white;
+    font-size: 2rem;
+}
+
+.gallery-item:hover .gallery-overlay {
+    opacity: 1;
+}
+
+.gallery-item video {
+    border-radius: 15px;
 }

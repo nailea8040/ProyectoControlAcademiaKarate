@@ -27,7 +27,7 @@ class Usuario extends Authenticatable // Cambiado de 'User' a 'Usuario'
         'pass',
         'rol',    // **CRÍTICO: Incluir 'rol' para que se guarde**
         'fecha_registro',
-        'activo', // Asegúrate de incluir el campo 'activo' si lo usas
+        'estado', // Asegúrate de incluir el campo 'activo' si lo usas
         
     ];
 
@@ -53,6 +53,7 @@ class Usuario extends Authenticatable // Cambiado de 'User' a 'Usuario'
         return [
             // No tienes 'email_verified_at', pero sí debes hashear la contraseña
             'pass' => 'hashed', 
+            'estado' => 'boolean',
         ];
     }
 }

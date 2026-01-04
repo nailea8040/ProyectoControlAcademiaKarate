@@ -40,11 +40,11 @@
 <div class="login-box">
   <div class="card card-outline card-primary">
     <div class="card-header text-center">
-      <p class="h1"><b>Almacén</b>PLUS</p>
+      <p class="h1"><b>Academia</b></p>
     </div>
     <div class="card-body">
       <p class="login-box-msg">Ahora puedes escribir una nueva cotraseña</p>
-      <form id="registroForm" action="{{route("password.update")}}" method="post">
+      <form method="POST" action="{{route("password.update")}}" method="post">
           @csrf
          @method('PUT')
 
@@ -152,7 +152,7 @@ const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8
                 messages: {
                     contrasennia: {
                         required: "Favor de ingresar una contraseña",
-                        minlength: "La contraseña debe tener al menos 6 caracteres",
+                        minlength: "La contraseña debe tener al menos 8 caracteres",
                         regexContrasennia: "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
                     },
                     recontrasennia:{

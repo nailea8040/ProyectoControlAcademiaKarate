@@ -12,7 +12,7 @@
 </head>
 <body>
     
-    @include('includes.menu') 
+   @include('includes.menu')  
 
     <div class="main-content">
         <header class="header">

@@ -7,10 +7,30 @@ use App\Http\Controllers\PagoController;
 use App\Http\Controllers\TutorController; 
 use App\Http\Controllers\UsuarioController; 
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CalendarioController;
+use App\Http\Controllers\EventoController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::post('/eventos/guardar', [EventoController::class, 'store'])->name('eventos.store')->middleware('auth');
+
+
+Route::get('/calendario', [CalendarioController::class, 'index'])->name('calendario.index');
+
+
+Route::get('/', [DashboardController::class, 'index'])->name('home');
+
+Route::get('/login', function() {
+    return view('auth.login'); // Asegúrate de que este archivo exista
+})->name('login');
+
+
+Route::get('landing', function () {
+    return view('landing');
+})->name('landing');
 
 // --- RUTAS DE AUTENTICACIÓN (SIN MIDDLEWARE) ---
 
@@ -63,4 +83,8 @@ Route::post('/usuarios/{id}/toggle-active', [UsuarioController::class, 'toggleAc
     
     // Tutores
     Route::resource('tutor', TutorController::class)->only(['index', 'store']);
+
+    // Ruta de Perfil - NUEVA
+    Route::get('/perfil', [App\Http\Controllers\PerfilController::class, 'index'])
+        ->name('perfil');
 });

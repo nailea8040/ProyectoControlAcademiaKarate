@@ -11,6 +11,16 @@
                 </a>
             </li>
             @endcan
+
+            {{-- NUEVO: Enlace al Calendario (Visible para todos los usuarios autenticados) --}}
+            @can('acceso-basico')
+            <li>
+                <a href="{{ route('calendario.index') }}" title="Calendario de Eventos" class="{{ Request::routeIs('calendario.*') ? 'activo' : '' }}">
+                    <i class="bi bi-calendar3"></i>
+                </a>
+            </li>
+            @endcan
+            
             
             {{-- Bloque de Gestión (solo visible si el usuario puede 'acceso-gestion') --}}
             @can('acceso-gestion')
@@ -37,6 +47,17 @@
             <li>
                 <a href="{{ route('pagos.index') }}" title="Pagos">
                     <i class="bi bi-cash-coin"></i>
+                </a>
+            </li>
+            @endcan
+
+            {{-- Enlace Perfil (Visible para todos los usuarios autenticados) --}}
+            @can('acceso-basico')
+            <li>
+                <a href="{{ route('perfil') }}" 
+                   title="Mi Perfil"
+                   class="{{ Request::routeIs('perfil') ? 'activo' : '' }}">
+                    <i class="bi bi-person-circle"></i>
                 </a>
             </li>
             @endcan

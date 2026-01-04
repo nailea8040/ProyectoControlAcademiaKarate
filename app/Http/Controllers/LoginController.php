@@ -32,7 +32,15 @@ class LoginController extends Controller
         $usuario = Usuario::where('correo', $correo)->first(); 
 
       //
+      
         if ($usuario && Hash::check($pass_ingresada, $usuario->pass)) { 
+            if ($usuario->estado !== true) {
+            Log::warning('Intento de login con cuenta inactiva para el correo: ' . $correo);
+
+            return back() 
+                ->withInput($request->only('correo')) 
+                ->withErrors(['cuenta_inactiva' => 'Su cuenta está inactiva']);
+        }
             
             Auth::login($usuario); 
             
