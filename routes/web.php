@@ -14,12 +14,13 @@ use App\Http\Controllers\EventoController;
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::post('/eventos/guardar', [EventoController::class, 'store'])->name('eventos.store')->middleware('auth');
-
-
 Route::get('/calendario', [CalendarioController::class, 'index'])->name('calendario.index');
 
+Route::middleware(['auth'])->group(function () {
+    Route::post('/eventos', [EventoController::class, 'store'])->name('eventos.store');
+    Route::put('/eventos/{id}', [EventoController::class, 'update'])->name('eventos.update');
+    Route::delete('/eventos/{id}', [EventoController::class, 'destroy'])->name('eventos.destroy');
+});
 
 Route::get('/', [DashboardController::class, 'index'])->name('home');
 
