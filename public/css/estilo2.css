@@ -2279,3 +2279,17 @@ input:checked + .slider:before {
 .gallery-item video {
     border-radius: 15px;
 }
+
+
+    .gallery-card:hover img,
+    .gallery-card:hover video {
+        transform: scale(1.1);
+    }
+    
+    .gallery-card > div:last-child {
+        transform: translateY(100%);
+    }
+    
+    .gallery-card:hover > div:last-child {
+        transform: translateY(0);
+    }

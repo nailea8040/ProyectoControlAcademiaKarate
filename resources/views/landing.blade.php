@@ -186,48 +186,104 @@
         </div>
     </section>
 
-    <section id="galeria" class="section-padding bg-light">
-    <div class="container">
+    <section id="galeria" class="section-padding" style="background: linear-gradient(135deg, #d43f3d 0%, #1B263B 100%); position: relative; overflow: hidden;">
+    <!-- Patrón decorativo -->
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.1; background-image: url('data:image/svg+xml,<svg width=\"60\" height=\"60\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M30 0l30 30-30 30L0 30z\" fill=\"white\"/></svg>'); background-size: 60px 60px;"></div>
+    
+    <div class="container" style="position: relative; z-index: 1;">
         <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold mb-3">Nuestra <span class="text-danger">Galería</span></h2>
-            <p class="text-muted mx-auto" style="max-width: 600px;">
-                Explora los momentos más destacados de nuestros entrenamientos, torneos y la vida en el Dojo.
+            <span class="badge rounded-pill px-4 py-2 mb-3" style="background: rgba(255,255,255,0.2); color: white; font-size: 0.9rem; font-weight: 700; letter-spacing: 1px;">
+                NUESTROS MOMENTOS
+            </span>
+            <h2 class="display-4 fw-bold text-white mb-3">
+                Galería <span style="color: #ffd700;">Multimedia</span>
+            </h2>
+            <p class="text-white mx-auto opacity-75" style="max-width: 650px; font-size: 1.1rem;">
+                Explora los momentos más destacados de nuestros entrenamientos, torneos y la vida en el Dojo
             </p>
         </div>
 
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&q=80&w=800" alt="Entrenamiento" class="img-fluid">
-                    <div class="gallery-overlay">
-                        <i class="bi bi-zoom-in"></i>
-                    </div>
-                </div>
-            </div>
+        <!-- Grid Moderno de Galería -->
+        <div class="row g-4 mb-5">
+            @php
+                // Obtener últimos 6 archivos de la galería
+                $galeriaItems = DB::table('galeria')
+                    ->orderBy('created_at', 'desc')
+                    ->limit(6)
+                    ->get();
+            @endphp
 
-            <div class="col-md-4">
-                <div class="gallery-item">
-                    <div class="ratio ratio-16x9">
-                        <video controls poster="https://images.unsplash.com/photo-1552072805-2a9039d00e57?auto=format&fit=crop&q=80&w=800">
-                            <source src="tu-video.mp4" type="video/mp4">
-                            Tu navegador no soporta videos.
-                        </video>
-                    </div>
-                </div>
-            </div>
+            @forelse($galeriaItems as $index => $item)
+            <div class="col-md-6 col-lg-4">
+                <div class="gallery-card" style="position: relative; border-radius: 25px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); transition: all 0.4s ease; cursor: pointer; height: 350px;" 
+                     onmouseover="this.style.transform='translateY(-10px) scale(1.02)'; this.style.boxShadow='0 30px 80px rgba(0,0,0,0.4)';" 
+                     onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 20px 60px rgba(0,0,0,0.3)';">
+                    
+                    @if($item->tipo === 'image')
+                        <img src="{{ asset('storage/' . $item->ruta) }}" 
+                             alt="{{ $item->titulo }}" 
+                             style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+                    @else
+                        <div style="width: 100%; height: 100%; position: relative; background: #000;">
+                            <video style="width: 100%; height: 100%; object-fit: cover;">
+                                <source src="{{ asset('storage/' . $item->ruta) }}" type="video/mp4">
+                            </video>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.9); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-play-fill" style="font-size: 2rem; color: var(--karate-dark); margin-left: 5px;"></i>
+                            </div>
+                        </div>
+                    @endif
 
-            <div class="col-md-4">
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1509563268479-0f004cf3f58b?auto=format&fit=crop&q=80&w=800" alt="Torneo" class="img-fluid">
-                    <div class="gallery-overlay">
-                        <i class="bi bi-zoom-in"></i>
+                    <!-- Overlay con información -->
+                    <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 1.5rem; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); color: white; transform: translateY(100%); transition: transform 0.3s ease;" 
+                         onmouseenter="this.style.transform='translateY(0)';" 
+                         onmouseleave="this.style.transform='translateY(100%)';">
+                        <h5 class="fw-bold mb-2">{{ $item->titulo }}</h5>
+                        <p class="small mb-0 opacity-75">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y') }}
+                        </p>
+                    </div>
+
+                    <!-- Badge de tipo -->
+                    <div style="position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); color: white; padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 700;">
+                        @if($item->tipo === 'image')
+                            <i class="bi bi-image-fill me-1"></i> Foto
+                        @else
+                            <i class="bi bi-play-circle-fill me-1"></i> Video
+                        @endif
                     </div>
                 </div>
             </div>
-            
+            @empty
+            <!-- Estado vacío con estilo -->
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <div style="width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;">
+                        <i class="bi bi-images" style="font-size: 3rem; color: white; opacity: 0.5;"></i>
+                    </div>
+                    <h4 class="text-white fw-bold mb-3">Próximamente</h4>
+                    <p class="text-white opacity-75">Estamos preparando contenido increíble para compartir contigo</p>
+                </div>
             </div>
+            @endforelse
+        </div>
+
+        <!-- Botón para ver toda la galería -->
+        @if($galeriaItems->count() > 0)
+        <div class="text-center">
+            <a href="{{ route('galeria.index') }}" class="btn btn-lg rounded-pill px-5 py-3 fw-bold" style="background: white; color: var(--karate-dark); box-shadow: 0 15px 40px rgba(0,0,0,0.3); transition: all 0.3s ease;" 
+               onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 50px rgba(0,0,0,0.4)';" 
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 15px 40px rgba(0,0,0,0.3)';">
+                <i class="bi bi-grid-3x3-gap me-2"></i>
+                Ver Galería Completa
+                <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+        @endif
     </div>
 </section>
+
 
     <section id="clases" class="section-padding bg-light">
     <div class="container">

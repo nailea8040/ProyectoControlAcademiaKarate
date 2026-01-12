@@ -10,10 +10,26 @@ use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CalendarioController;
 use App\Http\Controllers\EventoController;
+use App\Http\Controllers\GaleriaController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Ruta pública para ver la galería
+Route::get('/galeria', [GaleriaController::class, 'index'])->name('galeria.index');
+
+// Rutas protegidas solo para administradores
+Route::middleware(['auth'])->group(function () {
+    
+    // Subir archivo a la galería
+    Route::post('/galeria', [GaleriaController::class, 'store'])->name('galeria.store');
+    
+    // Eliminar archivo de la galería
+    Route::delete('/galeria/{id}', [GaleriaController::class, 'destroy'])->name('galeria.destroy');
+    
+});
+
 Route::get('/calendario', [CalendarioController::class, 'index'])->name('calendario.index');
 
 Route::middleware(['auth'])->group(function () {

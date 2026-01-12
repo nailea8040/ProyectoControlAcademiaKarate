@@ -6,7 +6,9 @@
             {{-- Enlace Principal (Acceso Básico) --}}
             @can('acceso-basico')
             <li>
-                <a href="{{ route('principal') }}" title="Inicio">
+                <a href="{{ route('principal') }}" 
+                   title="Inicio"
+                   class="{{ Request::routeIs('principal') ? 'activo' : '' }}">
                     <i class="bi bi-house-door"></i>
                 </a>
             </li>
@@ -27,26 +29,51 @@
                 
                 {{-- Enlace Usuarios --}}
                 <li>
-    <a href="{{ route('usuarios.index') }}" 
-       title="Usuarios"
-       class="@if(Request::routeIs('usuarios.*')) activo @endif">
-        <i class="bi bi-people"></i>
-    </a>
-</li>
+                    <a href="{{ route('usuarios.index') }}" 
+                       title="Usuarios"
+                       class="@if(Request::routeIs('usuarios.*')) activo @endif">
+                        <i class="bi bi-people"></i>
+                    </a>
+                </li>
                 
                 {{-- Enlace Alumnos --}}
-                <li><a href="{{ route('alumnos.index') }}" title="Alumnos"><i class="bi bi-person-badge"></i></a></li>
+                <li>
+                    <a href="{{ route('alumnos.index') }}" 
+                       title="Alumnos"
+                       class="{{ Request::routeIs('alumnos.*') ? 'activo' : '' }}">
+                        <i class="bi bi-person-badge"></i>
+                    </a>
+                </li>
                 
                 {{-- Enlace Tutores --}}
-                <li><a href="{{ route('tutor.index') }}" title="Tutores"><i class="bi bi-person-lines-fill"></i></a></li>
+                <li>
+                    <a href="{{ route('tutor.index') }}" 
+                       title="Tutores"
+                       class="{{ Request::routeIs('tutor.*') ? 'activo' : '' }}">
+                        <i class="bi bi-person-lines-fill"></i>
+                    </a>
+                </li>
                 
             @endcan
             
             {{-- Enlace Pagos (Acceso Básico) --}}
             @can('acceso-basico')
             <li>
-                <a href="{{ route('pagos.index') }}" title="Pagos">
+                <a href="{{ route('pagos.index') }}" 
+                   title="Pagos"
+                   class="{{ Request::routeIs('pagos.*') ? 'activo' : '' }}">
                     <i class="bi bi-cash-coin"></i>
+                </a>
+            </li>
+            @endcan
+
+            {{-- Enlace Galería (Acceso Básico) --}}
+            @can('acceso-basico')
+            <li>
+                <a href="{{ route('galeria.index') }}" 
+                   title="Galería Multimedia"
+                   class="{{ Request::routeIs('galeria.*') ? 'activo' : '' }}">
+                    <i class="bi bi-images"></i>
                 </a>
             </li>
             @endcan
@@ -63,19 +90,19 @@
             @endcan
             
             {{-- Enlace Salir --}}
-        <li>
-            <a href="#" 
-               title="Salir" 
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                <i class="bi bi-box-arrow-right"></i>
-            </a>
-        </li>
-    </ul>
-    {{-- Formulario de Logout --}}
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-        @csrf
-    </form>
-
+            <li>
+                <a href="#" 
+                   title="Salir" 
+                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="bi bi-box-arrow-right"></i>
+                </a>
+            </li>
+        </ul>
+        
+        {{-- Formulario de Logout --}}
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
     
     @endauth
     
