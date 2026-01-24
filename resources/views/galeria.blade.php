@@ -291,7 +291,7 @@
                         Galería Multimedia
                     </h1>
                     <div class="breadcrumb">
-                        <a href="{{ route('principal') }}">Dashboard</a>
+                        <a href="{{ route('principal') }}">Inicio</a>
                         <i class="bi bi-chevron-right"></i>
                         <span>Galería</span>
                     </div>

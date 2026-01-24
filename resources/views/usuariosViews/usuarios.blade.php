@@ -22,7 +22,7 @@
                     Gestión de Usuarios
                 </h1>
                 <div class="breadcrumb">
-                    <a href="#">Dashboard</a>
+                    <a href="#">Inicio</a>
                     <i class="bi bi-chevron-right"></i>
                     <span>Usuarios</span>
                 </div>

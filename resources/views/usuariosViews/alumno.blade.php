@@ -26,7 +26,7 @@
                 Gestión de Alumnos
             </h1>
             <div class="breadcrumb">
-                <a href="{{ route('principal') }}">Dashboard</a>
+                <a href="{{ route('principal') }}">Inicio</a>
                 <i class="bi bi-chevron-right"></i>
                 <span>Alumnos</span>
             </div>
@@ -42,6 +42,14 @@
                 <i class="bi bi-check-circle-fill alert-icon"></i>
                 <div>
                     <strong>¡Éxito!</strong> {{ session('success') }}
+                </div>
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
+                <div>
+                    <strong>Error:</strong> {{ session('error') }}
                 </div>
             </div>
         @endif
@@ -68,7 +76,7 @@
             </div>
             
             {{-- Usamos #registroAlumno de tu código original, envuelto en la estructura moderna --}}
-            <form id="registroAlumno" method="POST" action="{{-- URL de registro --}}" class="form-body"> 
+            <form id="registroAlumno" method="POST" action="{{ route('alumnos.store') }}" class="form-body" enctype="multipart/form-data"> 
                 @csrf {{-- ¡No olvidar el token de seguridad! --}}
 
                 <h3 class="section-title-header">
@@ -82,23 +90,28 @@
                         </label>
                         <div class="form-input-wrapper">
                             <i class="bi bi-person-badge input-icon"></i>
-                            <select id="id_alumno" class="form-select" name="id_alumno" required>
-                                <option value="">Seleccione un usuario</option>
-                                {{-- Aquí iría un loop de Blade para usuarios --}}
-                            </select>
+                           <select id="id_alumno" class="form-select" name="id_alumno" required>
+    <option value="">Seleccione un usuario</option>
+    @foreach($usuarios_candidatos as $user)
+        {{-- Usamos $user->id y concatenamos nombre/apellido --}}
+        <option value="{{ $user->id_usuario }}">{{ $user->nombre_completo }}</option>
+    @endforeach
+</select>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="id_tutor">
+                        <label class="form-label" for="id_Tutor">
                             Tutor Responsable <span class="required">*</span>
                         </label>
                         <div class="form-input-wrapper">
                             <i class="bi bi-person-lines-fill input-icon"></i>
-                            <select id="id_tutor" class="form-select" name="id_tutor" required>
-                                <option value="">Seleccione un tutor</option>
-                                {{-- Aquí iría un loop de Blade para tutores --}}
-                            </select>
+                            <select id="id_Tutor" class="form-select" name="id_Tutor" required>
+    <option value="">Seleccione un tutor</option>
+    @foreach($tutores as $tutor)
+        <option value="{{ $tutor->id_Tutor }}">{{ $tutor->nombre_completo }}</option>
+    @endforeach
+</select>
                         </div>
                     </div>
                 </div>
@@ -110,21 +123,15 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label" for="grado">
-                            Grado Actual (Cinturón) <span class="required">*</span>
+                            Grado Actual<span class="required">*</span>
                         </label>
                         <div class="form-input-wrapper">
                             <i class="bi bi-trophy input-icon"></i>
                             <select id="grado" class="form-select" name="grado" required>
                                 <option value="">Seleccione un grado</option>
-                                {{-- Opciones de Grado --}}
-                                <option value="Blanco">🤍 Cinturón Blanco</option>
-                                <option value="Amarillo">💛 Cinturón Amarillo</option>
-                                <option value="Naranja">🧡 Cinturón Naranja</option>
-                                <option value="Verde">💚 Cinturón Verde</option>
-                                <option value="Azul">💙 Cinturón Azul</option>
-                                <option value="Morado">💜 Cinturón Morado</option>
-                                <option value="Café">🤎 Cinturón Café</option>
-                                <option value="Negro">🖤 Cinturón Negro</option>
+                                 @foreach($grados as $grado)
+                                <option value="{{ $grado->id_Grado }}">{{ $grado->nombreGrado }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -140,24 +147,54 @@
                 </div>
                 
                 <h3 class="section-title-header">
-                    <i class="bi bi-heart-pulse-fill"></i>
-                    Información Médica
-                </h3>
-                <div class="form-grid full-width">
-                    <div class="form-group">
-                        <label class="form-label" for="condiciones">
-                            Condiciones Médicas (Opcional)
-                        </label>
-                        <div class="form-input-wrapper">
-                            <i class="bi bi-journal-medical input-icon" style="top: 20px;"></i>
-                            <textarea id="condiciones" class="form-textarea" name="condiciones"
-                                      placeholder="Describa cualquier condición médica relevante..."></textarea>
-                        </div>
-                        <small style="color: #757575; margin-top: 5px; display: block;">
-                            Esta información es confidencial y solo será utilizada para garantizar la seguridad del alumno
-                        </small>
-                    </div>
+    <i class="bi bi-heart-pulse-fill"></i>
+    Información Médica
+</h3>
+<div class="form-grid full-width">
+    
+    <div class="form-group">
+        <label class="form-label" for="documento_medico">
+            Documento Médico (PDF) <span class="required">*</span>
+        </label>
+        
+        <!-- Área de Drag & Drop -->
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-content">
+                <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                <p class="upload-text">Arrastra archivos aquí o haz clic para seleccionar</p>
+                <button type="button" class="btn-upload" id="selectFileBtn">
+                    Seleccionar Archivos
+                </button>
+                <small class="upload-info">Formatos aceptados: PDF, JPG, PNG (máx. 10MB)</small>
+            </div>
+            <input type="file" 
+                   id="documento_medico" 
+                   name="documento_medico" 
+                   accept=".pdf"
+                   style="display: none;"
+                   required>
+        </div>
+        
+        <!-- Preview del archivo seleccionado -->
+        <div id="file-preview" class="file-preview">
+            <div class="file-preview-content">
+                <i class="bi bi-file-earmark-pdf file-icon"></i>
+                <div class="file-details">
+                    <span id="file-name" class="file-name"></span>
+                    <span id="file-size" class="file-size"></span>
                 </div>
+                <button type="button" class="btn-remove" id="removeFileBtn">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <small style="color: #757575; margin-top: 5px; display: block;">
+        Esta información es confidencial y solo será utilizada para garantizar la seguridad del alumno
+    </small>
+</div>
+
                 
                 <div class="form-actions">
                     <button type="reset" class="btn btn-secondary">
@@ -192,6 +229,7 @@
                             <th>Grado</th>
                             <th>Tutor</th>
                             <th>Inscripción</th>
+                            <th>Doc. Médico</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
@@ -199,38 +237,33 @@
                     {{-- Usamos tbody de tu código original, ahora con la clase alumnosTable --}}
                     <tbody id="alumnosTable">
                         {{-- Aquí iría un loop de Blade para mostrar los datos reales --}}
-                        
-                        {{-- EJEMPLOS DE DATOS DEL DISEÑO MODERNO --}}
-                        <tr>
-                            <td>
-                                <div class="student-info">
-                                    <div class="student-avatar">JP</div>
-                                    <div class="student-details">
-                                        <span class="student-name">Juan Pérez González</span>
-                                        <span class="student-tutor">juan.perez@ejemplo.com</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="badge badge-yellow">Cinturón Amarillo</span></td>
-                            <td>Ana García Torres</td>
-                            <td>15/01/2024</td>
-                            <td><span class="badge badge-success">Activo</span></td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="action-btn btn-view" title="Ver detalles">
-                                        <i class="bi bi-eye-fill"></i>
-                                    </button>
-                                    <button class="action-btn btn-edit" title="Editar">
-                                        <i class="bi bi-pencil-fill"></i>
-                                    </button>
-                                    <button class="action-btn btn-delete" title="Eliminar">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        {{-- FIN EJEMPLOS --}}
-                    </tbody>
+                         @foreach($alumnos_registrados as $alumno)
+    <tr>
+        <td>{{ $alumno->nombre_alumno }}</td>
+        <td>{{ $alumno->nombreGrado }}</td>
+        <td>{{ $alumno->nombre_tutor }}</td>
+        <td>{{ \Carbon\Carbon::parse($alumno->Fecha_inscrip)->format('d/m/Y') }}</td>
+        <td>
+            @if($alumno->condiciones_medicas)
+                <a href="{{ asset('storage/' . $alumno->condiciones_medicas) }}" 
+                   target="_blank" 
+                   class="btn btn-sm btn-info"
+                   title="Ver documento médico">
+                    <i class="bi bi-file-earmark-pdf"></i> Ver PDF
+                </a>
+            @else
+                <span class="badge badge-secondary">Sin documento</span>
+            @endif
+        </td>
+        <td><span class="badge badge-success">Activo</span></td>
+        <td>
+            <button class="btn btn-sm btn-warning">
+                <i class="bi bi-pencil"></i> Editar
+            </button>
+        </td>
+    </tr>
+    @endforeach
+</tbody>
                 </table>
             </div>
         </div>
@@ -242,25 +275,98 @@
 
 {{-- Script de JS del diseño moderno (Puedes moverlo a un archivo .js) --}}
 <script>
-    document.getElementById('registroAlumno').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Simular lógica de éxito
-        const successAlert = document.querySelector('.alert-success');
-        if (successAlert) {
-            successAlert.style.display = 'flex';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            this.reset();
-            
-            setTimeout(() => {
-                successAlert.style.display = 'none';
-            }, 5000);
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('documento_medico');
+    const selectFileBtn = document.getElementById('selectFileBtn');
+    const filePreview = document.getElementById('file-preview');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const removeFileBtn = document.getElementById('removeFileBtn');
+
+    // Click en el área de upload
+    uploadArea.addEventListener('click', function(e) {
+        if (e.target !== selectFileBtn) {
+            fileInput.click();
         }
     });
 
-    // Lógica de búsqueda (si no usas Vue/Livewire)
-    // document.getElementById('searchInput').addEventListener('input', function() { /* ... */ });
-</script>
+    // Click en el botón de seleccionar
+    selectFileBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        fileInput.click();
+    });
 
+    // Drag & Drop events
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('drag-over');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelect(files[0]);
+        }
+    });
+
+    // Cuando se selecciona un archivo
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            handleFileSelect(file);
+        }
+    });
+
+    // Función para manejar la selección de archivos
+    function handleFileSelect(file) {
+        // Validar tipo de archivo
+        if (file.type !== 'application/pdf') {
+            alert('Por favor seleccione solo archivos PDF');
+            fileInput.value = '';
+            return;
+        }
+        
+        // Validar tamaño (10MB = 10485760 bytes)
+        if (file.size > 10485760) {
+            alert('El archivo es demasiado grande. Tamaño máximo: 10MB');
+            fileInput.value = '';
+            return;
+        }
+        
+        // Mostrar preview
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        
+        uploadArea.style.display = 'none';
+        filePreview.classList.add('active');
+    }
+
+    // Remover archivo
+    removeFileBtn.addEventListener('click', function() {
+        fileInput.value = '';
+        uploadArea.style.display = 'block';
+        filePreview.classList.remove('active');
+    });
+
+    // Formatear tamaño del archivo
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+});
+</script>
 </body>
 </html>

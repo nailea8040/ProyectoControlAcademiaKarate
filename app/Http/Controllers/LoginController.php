@@ -66,7 +66,7 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login') //landing para redireccionar a la página principal
+        return redirect('/landing') //landing para redireccionar a la página principal
                 ->with('status', 'Ha cerrado la sesión con éxito.');
     }
 }

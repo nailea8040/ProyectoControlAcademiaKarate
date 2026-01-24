@@ -14,16 +14,7 @@
             </li>
             @endcan
 
-            {{-- NUEVO: Enlace al Calendario (Visible para todos los usuarios autenticados) --}}
-            @can('acceso-basico')
-            <li>
-                <a href="{{ route('calendario.index') }}" title="Calendario de Eventos" class="{{ Request::routeIs('calendario.*') ? 'activo' : '' }}">
-                    <i class="bi bi-calendar3"></i>
-                </a>
-            </li>
-            @endcan
-            
-            
+        
             {{-- Bloque de Gestión (solo visible si el usuario puede 'acceso-gestion') --}}
             @can('acceso-gestion')
                 
@@ -35,16 +26,7 @@
                         <i class="bi bi-people"></i>
                     </a>
                 </li>
-                
-                {{-- Enlace Alumnos --}}
-                <li>
-                    <a href="{{ route('alumnos.index') }}" 
-                       title="Alumnos"
-                       class="{{ Request::routeIs('alumnos.*') ? 'activo' : '' }}">
-                        <i class="bi bi-person-badge"></i>
-                    </a>
-                </li>
-                
+
                 {{-- Enlace Tutores --}}
                 <li>
                     <a href="{{ route('tutor.index') }}" 
@@ -55,7 +37,16 @@
                 </li>
                 
             @endcan
-            
+                
+                {{-- Enlace Alumnos --}}
+                <li>
+                    <a href="{{ route('alumnos.index') }}" 
+                       title="Alumnos"
+                       class="{{ Request::routeIs('alumnos.*') ? 'activo' : '' }}">
+                        <i class="bi bi-person-badge"></i>
+                    </a>
+                </li>
+                
             {{-- Enlace Pagos (Acceso Básico) --}}
             @can('acceso-basico')
             <li>
@@ -63,6 +54,15 @@
                    title="Pagos"
                    class="{{ Request::routeIs('pagos.*') ? 'activo' : '' }}">
                     <i class="bi bi-cash-coin"></i>
+                </a>
+            </li>
+            @endcan
+
+             {{-- NUEVO: Enlace al Calendario (Visible para todos los usuarios autenticados) --}}
+            @can('acceso-basico')
+            <li>
+                <a href="{{ route('calendario.index') }}" title="Calendario de Eventos" class="{{ Request::routeIs('calendario.*') ? 'activo' : '' }}">
+                    <i class="bi bi-calendar3"></i>
                 </a>
             </li>
             @endcan

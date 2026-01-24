@@ -25,7 +25,7 @@
                 Gestión de Tutores
             </h1>
             <div class="breadcrumb">
-                <a href="{{ route('principal') }}">Dashboard</a>
+                <a href="{{ route('principal') }}">Inicio</a>
                 <i class="bi bi-chevron-right"></i>
                 <span>Tutores</span>
             </div>
@@ -35,14 +35,20 @@
     <div class="content-wrapper">
         
         {{-- ALERTA DE ÉXITO (Usando Blade para mensajes de sesión) --}}
-        @if(session('success'))
-            <div class="alert alert-success">
-                <i class="bi bi-check-circle-fill alert-icon"></i>
-                <div>
-                    <strong>¡Éxito!</strong> {{ session('success') }}
-                </div>
-            </div>
-        @endif
+        {{-- Cambia la alerta de éxito para que sea más flexible --}}
+@if(session('success'))
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle-fill alert-icon"></i>
+        <div><strong>¡Éxito!</strong> {{ session('success') }}</div>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div><strong>Error:</strong> {{ session('error') }}</div>
+    </div>
+@endif
         
         <div class="info-card">
             <h4>
@@ -54,6 +60,25 @@
                 Un tutor puede ser responsable de múltiples alumnos.
             </p>
         </div>
+
+        {{-- Bloque para ver errores de validación (Crucial para depurar) --}}
+@if ($errors->any())
+    <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li><i class="bi bi-exclamation-circle"></i> {{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+{{-- Asegúrate de que el nombre del mensaje coincida con el controlador --}}
+@if(session('mensaje'))
+    <div class="alert alert-success">
+        {{ session('mensaje') }}
+    </div>
+@endif
+
 
         {{-- FORMULARIO PARA REGISTRAR TUTOR --}}
         <div class="form-container">
@@ -79,11 +104,11 @@
                         </label>
                         <div class="form-input-wrapper">
                             <i class="bi bi-person-badge input-icon"></i>
-                            <select name="id_tutor" id="id_tutor" class="form-select" required>
+                            <select name="id_Tutor" id="id_Tutor" class="form-select" required>
                                 <option value="">Seleccione un usuario</option>
                                 {{-- DATOS DINÁMICOS DEL CÓDIGO 1 --}}
                                 @foreach($usuarios_tutor as $u) 
-                                    <option value="{{ $u->id_tutor }}">{{ $u->nombre_completo }}</option>
+                                    <option value="{{ $u->id_Tutor }}">{{ $u->nombre_completo }}</option>
                                 @endforeach
                                 {{-- FIN DATOS DINÁMICOS --}}
                             </select>
@@ -195,7 +220,6 @@
                             <th>Tutor</th>
                             <th>Ocupación</th>
                             <th>Relación</th>
-                            <th>Alumnos a cargo</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -216,7 +240,7 @@
                                 </td>
                                 <td><span class="badge badge-occupation">{{ $t->ocupacion }}</span></td>
                                 <td><span class="badge badge-relation">{{ $t->relacion_estudiante }}</span></td>
-                                <td>{{ $t->alumnos_a_cargo ?? 'N/A' }}</td> {{-- Se necesita esta columna en la consulta --}}
+                            
                                 
                                 <td>
                                     <div class="action-buttons">
