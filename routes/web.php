@@ -38,7 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/eventos/{id}', [EventoController::class, 'destroy'])->name('eventos.destroy');
 });
 
-Route::get('/', [DashboardController::class, 'index'])->name('home');
+//Route::get('/', [DashboardController::class, 'index'])->name('home');
 
 Route::get('/login', function() {
     return view('auth.login'); // Asegúrate de que este archivo exista
@@ -48,6 +48,9 @@ Route::get('/login', function() {
 Route::get('landing', function () {
     return view('landing');
 })->name('landing');
+
+// Ruta para enviar correo de contacto desde landing
+Route::post('/contacto/enviar', [App\Http\Controllers\ContactoController::class, 'enviar'])->name('contacto.enviar');
 
 // --- RUTAS DE AUTENTICACIÓN (SIN MIDDLEWARE) ---
 
@@ -94,12 +97,14 @@ Route::post('/usuarios/{id}/toggle-active', [UsuarioController::class, 'toggleAc
     
     // Alumnos
     Route::resource('alumnos', AlumnoController::class)->only(['index', 'store']);
+    Route::put('/alumnos/{id}', [AlumnoController::class, 'update'])->name('alumnos.update');
     
     // Pagos
     Route::resource('pagos', PagoController::class)->only(['index', 'store']);
     
     // Tutores
     Route::resource('tutor', TutorController::class)->only(['index', 'store']);
+    Route::put('/tutor/update', [TutorController::class, 'update'])->name('tutor.update');
 
     // Ruta de Perfil - NUEVA
     Route::get('/perfil', [App\Http\Controllers\PerfilController::class, 'index'])

@@ -102,4 +102,39 @@ class AlumnoController extends Controller
             return redirect()->back()->with('error', 'Error al registrar: ' . $e->getMessage());
         }
     }
+
+    // AlumnoController.php
+
+public function update(Request $request, $id)
+{
+    $validated = $request->validate([
+        'id_Tutor' => "required|exists:{$this->userTable},{$this->userIdColumn}", 
+        'id_Grado' => 'required|integer|exists:grado,id_grado',
+        'Fecha_inscrip' => 'required|date',
+        'documento_medico' => 'nullable|file|mimes:pdf|max:5120',
+    ]);
+
+    try {
+        $data = [
+            'id_Tutor' => $validated['id_Tutor'],
+            'id_Grado' => $validated['id_Grado'],
+            'Fecha_inscrip' => $validated['Fecha_inscrip'],
+        ];
+
+        // Manejo de nuevo archivo si se sube uno
+        if ($request->hasFile('documento_medico')) {
+            $archivo = $request->file('documento_medico');
+            $nombreArchivo = 'medico_' . $id . '_' . time() . '.pdf';
+            $data['condiciones_medicas'] = $archivo->storeAs('documentos_medicos', $nombreArchivo, 'public');
+        }
+
+        DB::table('alumno')
+            ->where('id_alumno', $id)
+            ->update($data);
+
+        return redirect()->route('alumnos.index')->with('success', 'Alumno actualizado con éxito.');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Error al actualizar: ' . $e->getMessage());
+    }
+}
 }

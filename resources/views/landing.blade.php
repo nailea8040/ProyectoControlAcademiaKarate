@@ -95,6 +95,7 @@
                 <ul class="navbar-nav ms-auto gap-3">
                     <li class="nav-item"><a class="nav-link text-white" href="#inicio">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link text-white" href="#nosotros">Nosotros</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="#galeria">Galería</a></li>
                     <li class="nav-item"><a class="nav-link text-white" href="#clases">Clases</a></li>
                     <li class="nav-item"><a class="nav-link text-white" href="#horarios">Horarios</a></li>
                     <li class="nav-item"><a class="btn btn-modern btn-sm" href="#contacto">Contacto</a></li>
@@ -498,23 +499,23 @@
                         <p class="text-muted">¿Tienes alguna duda? Estamos listos para ayudarte en tu camino marcial.</p>
                     </div>
 
-                    <form action="#" method="POST" class="row g-3">
+                    <form action="{{ route('contacto.enviar') }}" method="POST" class="row g-3">
                         @csrf
                         <div class="col-md-6">
                             <label class="form-label">Nombre Completo</label>
-                            <input type="text" class="form-control" placeholder="Escribe tu nombre">
+                            <input type="text" class="form-control" name="nombre" placeholder="Escribe tu nombre" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Correo Electrónico</label>
-                            <input type="email" class="form-control" placeholder="ejemplo@correo.com">
+                            <input type="email" class="form-control" name="correo" placeholder="ejemplo@correo.com" required>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Teléfono de Contacto</label>
-                            <input type="tel" class="form-control" placeholder="10 dígitos">
+                            <input type="tel" class="form-control" name="telefono" placeholder="10 dígitos" required>
                         </div>
                         <div class="col-12">
                             <label class="form-label">¿En qué podemos ayudarte?</label>
-                            <textarea class="form-control" rows="4" placeholder="Escribe tu mensaje aquí..."></textarea>
+                            <textarea class="form-control" name="mensaje" rows="4" placeholder="Escribe tu mensaje aquí..." required></textarea>
                         </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-send-contact w-100">
@@ -562,11 +563,14 @@
                         </div>
                     </div>
 
-                    <div class="mt-4 rounded-4 overflow-hidden shadow-sm" style="height: 200px; background-color: #4A4A4A; display: flex; align-items: center; justify-content: center;">
-                        <div class="text-center text-white-50">
-                            <i class="bi bi-map fs-1"></i>
-                            <p class="small">Mapa interactivo del Dojo</p>
-                        </div>
+                    <div class="mt-4 rounded-4 overflow-hidden shadow-sm" style="height: 200px;">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3741.7265123456!2d-98.3856!3d19.2895!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cdc8e8b8e8b8b%3A0x1234567890!2sCalle%20Estado%20de%20M%C3%A9xico%2046%2C%20San%20Mart%C3%ADn%20Texmelucan!5e0!3m2!1ses!2smx!4v1234567890" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+
+                    <div class="mt-3">
+                        <a href="https://www.google.com/maps/search/Calle+Estado+de+M%C3%A9xico+46,+San+Mart%C3%ADn+Texmelucan,+Puebla/@19.2895,-98.3856,15z" target="_blank" class="btn btn-primary w-100 rounded-pill">
+                            <i class="bi bi-map me-2"></i>Ver en Google Maps
+                        </a>
                     </div>
                 </div>
             </div>

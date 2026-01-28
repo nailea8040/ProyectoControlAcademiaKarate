@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Recuperar Contraseña - Sistema Dojo</title>
+    <title>Recuperar ContraseÃ±a - Sistema Dojo</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
@@ -71,7 +71,7 @@
 
     <script>
         $(document).ready(function () {
-            // SweetAlert Toast (Lógica sin cambios)
+            // SweetAlert Toast (LÃ³gica sin cambios)
             @if (session('sessionRecuperarContrasennia') == 'true')
                 Swal.fire({
                     icon: 'success',
@@ -94,7 +94,7 @@
                 });
             @endif
 
-            // Validación del formulario (Lógica sin cambios)
+            // ValidaciÃ³n del formulario (LÃ³gica sin cambios)
             $.validator.setDefaults({
                 submitHandler: function () {
                     $('#preloader').css('display', 'flex');
@@ -130,4 +130,4 @@
         });
     </script>
 </body>
-</html>
+</html> 

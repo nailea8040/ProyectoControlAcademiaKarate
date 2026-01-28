@@ -8,6 +8,7 @@
     {{-- Usar el layout y CSS compartido --}}
     <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}"> 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     {{-- Eliminar el link a Bootstrap CSS para usar solo el estilo2.css --}}
 </head>
@@ -156,7 +157,9 @@
         <label class="form-label" for="documento_medico">
             Documento Médico (PDF) <span class="required">*</span>
         </label>
-        
+        <small style="color: #757575; margin-top: 5px; display: block;">
+        Esta información es confidencial y solo será utilizada para garantizar la seguridad del alumno
+    </small>
         <!-- Área de Drag & Drop -->
         <div class="upload-area" id="uploadArea">
             <div class="upload-content">
@@ -190,9 +193,7 @@
         </div>
     </div>
     
-    <small style="color: #757575; margin-top: 5px; display: block;">
-        Esta información es confidencial y solo será utilizada para garantizar la seguridad del alumno
-    </small>
+    
 </div>
 
                 
@@ -217,9 +218,9 @@
                     Alumnos Registrados (12)
                 </h2>
                 <div class="search-box">
-                    <i class="bi bi-search search-icon"></i>
-                    <input type="text" class="search-input" id="searchInput" placeholder="Buscar alumnos...">
-                </div>
+                            <i class="bi bi-search search-icon"></i>
+                            <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre, correo o rol...">
+                        </div>
             </div>
             <div class="table-responsive">
                 <table>
@@ -257,9 +258,15 @@
         </td>
         <td><span class="badge badge-success">Activo</span></td>
         <td>
-            <button class="btn btn-sm btn-warning">
-                <i class="bi bi-pencil"></i> Editar
-            </button>
+            <button type="button" class="action-btn btn-edit edit-alumno-btn" 
+    data-id="{{ $alumno->id_alumno }}"
+    data-nombre="{{ $alumno->nombre_alumno }}"
+    data-tutor="{{ $alumno->id_Tutor }}"
+    data-grado="{{ $alumno->id_Grado }}"
+    data-fecha="{{ $alumno->Fecha_inscrip }}"
+    title="Editar">
+    <i class="bi bi-pencil-fill"></i>
+</button>
         </td>
     </tr>
     @endforeach
@@ -270,11 +277,129 @@
     </div>
 
     {{-- Pie de página --}}
-    @include('includes.pie') {{-- Asumiendo que tienes un footer incluido --}}
+    @include('includes.pie') 
 </div>
 
-{{-- Script de JS del diseño moderno (Puedes moverlo a un archivo .js) --}}
+    <!-- Modal Moderno para Editar Alumno -->
+<div id="editModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title">
+                    <i class="bi bi-pencil-square"></i>
+                    Editar Alumno
+                </h2>
+                <p class="modal-subtitle" id="editNombreAlumno"></p>
+            </div>
+            <button type="button" class="modal-close" onclick="closeEditModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        
+        <form id="editForm" method="POST" enctype="multipart/form-data" class="modal-body">
+            @csrf
+            @method('PUT')
+            
+            <div class="form-section">
+                <h3 class="form-section-title">
+                    <i class="bi bi-person-circle"></i>
+                    Información del Alumno
+                </h3>
+                
+                <div class="form-row full-width">
+                    <div class="form-field">
+                        <label class="field-label" for="edit_id_Tutor">
+                            Tutor Responsable <span class="required">*</span>
+                        </label>
+                        <div class="field-wrapper">
+                            <i class="bi bi-person-lines-fill field-icon"></i>
+                            <select id="edit_id_Tutor" name="id_Tutor" class="field-input" required>
+                                @foreach($tutores as $tutor)
+                                    <option value="{{ $tutor->id_Tutor }}">{{ $tutor->nombre_completo }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row full-width">
+                    <div class="form-field">
+                        <label class="field-label" for="edit_id_Grado">
+                            Grado Actual <span class="required">*</span>
+                        </label>
+                        <div class="field-wrapper">
+                            <i class="bi bi-award-fill field-icon"></i>
+                            <select id="edit_id_Grado" name="id_Grado" class="field-input" required>
+                                @foreach($grados as $grado)
+                                    <option value="{{ $grado->id_Grado }}">{{ $grado->nombreGrado }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row full-width">
+                    <div class="form-field">
+                        <label class="field-label" for="edit_Fecha_inscrip">
+                            Fecha de Inscripción <span class="required">*</span>
+                        </label>
+                        <div class="field-wrapper">
+                            <i class="bi bi-calendar-check field-icon"></i>
+                            <input type="date" id="edit_Fecha_inscrip" name="Fecha_inscrip" class="field-input" required>
+                        </div>
+                    </div>
+                </div>
+
+                   
+                <div class="form-row full-width">
+                    <div class="form-field">
+                        <label class="field-label" for="edit_documento_medico">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                            Actualizar Documento Médico (Opcional)
+                        </label>
+                        <div class="file-upload-container">
+                            <div class="file-upload-box">
+                                <div class="file-upload-header">
+                                    <i class="bi bi-cloud-arrow-up"></i>
+                                    <p>Seleccionar nuevo documento PDF</p>
+                                </div>
+                                <input type="file" id="edit_documento_medico" name="documento_medico" class="file-input-hidden" accept=".pdf">
+                                <button type="button" class="btn-select-file" onclick="document.getElementById('edit_documento_medico').click()">
+                                    <i class="bi bi-folder2-open"></i>
+                                    Buscar archivo
+                                </button>
+                                <small class="file-upload-hint">PDF (máx. 5MB) - Si no selecciona, se mantendrá el actual</small>
+                            </div>
+                            <div id="edit-file-preview" class="edit-file-preview">
+                                <i class="bi bi-file-earmark-pdf" style="font-size: 28px; color: #dc3545;"></i>
+                                <span id="edit-file-name" style="flex: 1; color: #333; font-weight: 500;"></span>
+                                <button type="button" class="btn-remove-file" onclick="removeEditFile()">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn-modal btn-cancel" onclick="closeEditModal()">
+                    <i class="bi bi-x-circle"></i>
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-modal btn-save">
+                    <i class="bi bi-check-circle"></i>
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 <script>
+// Script para manejo de carga de archivos (Drag & Drop)
 document.addEventListener('DOMContentLoaded', function() {
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('documento_medico');
@@ -284,89 +409,259 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileSize = document.getElementById('file-size');
     const removeFileBtn = document.getElementById('removeFileBtn');
 
-    // Click en el área de upload
-    uploadArea.addEventListener('click', function(e) {
-        if (e.target !== selectFileBtn) {
+    if (uploadArea && fileInput) {
+        // Click en el área de upload
+        uploadArea.addEventListener('click', function(e) {
+            if (e.target !== selectFileBtn) {
+                fileInput.click();
+            }
+        });
+
+        // Click en el botón de seleccionar
+        selectFileBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
             fileInput.click();
+        });
+
+        // Drag & Drop events
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect(files[0]);
+            }
+        });
+
+        // Cuando se selecciona un archivo
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileSelect(file);
+            }
+        });
+
+        // Función para manejar la selección de archivos
+        function handleFileSelect(file) {
+            // Validar tipo de archivo
+            if (file.type !== 'application/pdf') {
+                showNotification('Por favor seleccione solo archivos PDF', 'error');
+                fileInput.value = '';
+                return;
+            }
+            
+            // Validar tamaño (10MB = 10485760 bytes)
+            if (file.size > 10485760) {
+                showNotification('El archivo es demasiado grande. Tamaño máximo: 10MB', 'error');
+                fileInput.value = '';
+                return;
+            }
+            
+            // Mostrar preview
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            
+            uploadArea.style.display = 'none';
+            filePreview.classList.add('active');
         }
-    });
 
-    // Click en el botón de seleccionar
-    selectFileBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        fileInput.click();
-    });
-
-    // Drag & Drop events
-    uploadArea.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        uploadArea.classList.add('drag-over');
-    });
-
-    uploadArea.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        uploadArea.classList.remove('drag-over');
-    });
-
-    uploadArea.addEventListener('drop', function(e) {
-        e.preventDefault();
-        uploadArea.classList.remove('drag-over');
-        
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            fileInput.files = files;
-            handleFileSelect(files[0]);
+        // Remover archivo
+        if (removeFileBtn) {
+            removeFileBtn.addEventListener('click', function() {
+                fileInput.value = '';
+                uploadArea.style.display = 'block';
+                filePreview.classList.remove('active');
+            });
         }
-    });
 
-    // Cuando se selecciona un archivo
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            handleFileSelect(file);
+        // Formatear tamaño del archivo
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
-    });
-
-    // Función para manejar la selección de archivos
-    function handleFileSelect(file) {
-        // Validar tipo de archivo
-        if (file.type !== 'application/pdf') {
-            alert('Por favor seleccione solo archivos PDF');
-            fileInput.value = '';
-            return;
-        }
-        
-        // Validar tamaño (10MB = 10485760 bytes)
-        if (file.size > 10485760) {
-            alert('El archivo es demasiado grande. Tamaño máximo: 10MB');
-            fileInput.value = '';
-            return;
-        }
-        
-        // Mostrar preview
-        fileName.textContent = file.name;
-        fileSize.textContent = formatFileSize(file.size);
-        
-        uploadArea.style.display = 'none';
-        filePreview.classList.add('active');
-    }
-
-    // Remover archivo
-    removeFileBtn.addEventListener('click', function() {
-        fileInput.value = '';
-        uploadArea.style.display = 'block';
-        filePreview.classList.remove('active');
-    });
-
-    // Formatear tamaño del archivo
-    function formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
     }
 });
+
+// Script para manejo del Modal de Edición
+document.addEventListener('DOMContentLoaded', function() {
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editForm');
+    const editNombreAlumno = document.getElementById('editNombreAlumno');
+
+    if (editModal && editForm) {
+        // Abrir Modal y llenar campos
+        document.querySelectorAll('.edit-alumno-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const nombre = this.getAttribute('data-nombre');
+                const tutor = this.getAttribute('data-tutor');
+                const grado = this.getAttribute('data-grado');
+                const fecha = this.getAttribute('data-fecha');
+
+                // Llenar campos
+                if (editNombreAlumno) {
+                    editNombreAlumno.textContent = nombre;
+                }
+                
+                const tutorSelect = document.getElementById('edit_id_Tutor');
+                const gradoSelect = document.getElementById('edit_id_Grado');
+                const fechaInput = document.getElementById('edit_Fecha_inscrip');
+                
+                if (tutorSelect) tutorSelect.value = tutor;
+                if (gradoSelect) gradoSelect.value = grado;
+                if (fechaInput) fechaInput.value = fecha;
+
+                // Cambiar dinámicamente el ACTION del form
+                editForm.action = '{{ url("/alumnos") }}/' + id;
+
+                // Mostrar modal con animación
+                editModal.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevenir scroll del body
+            });
+        });
+    }
+});
+
+// Función para cerrar modal
+function closeEditModal() {
+    const editModal = document.getElementById('editModal');
+    if (editModal) {
+        editModal.classList.remove('active');
+        document.body.style.overflow = ''; // Restaurar scroll del body
+    }
+}
+
+// Cerrar si hacen clic fuera del modal
+window.addEventListener('click', function(event) {
+    const editModal = document.getElementById('editModal');
+    if (event.target === editModal) {
+        closeEditModal();
+    }
+});
+
+// Cerrar con tecla ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const editModal = document.getElementById('editModal');
+        if (editModal && editModal.classList.contains('active')) {
+            closeEditModal();
+        }
+    }
+});
+
+// Sistema de notificaciones (opcional - mejor que alert())
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <i class="bi bi-${type === 'error' ? 'exclamation-triangle' : 'check-circle'}-fill"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Mostrar con animación
+    setTimeout(() => notification.classList.add('show'), 10);
+    
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Función de búsqueda en tabla
+$(document).ready(function() {
+    $('#searchInput').on('keyup', function() {
+        const searchText = $(this).val().toLowerCase();
+        $('#alumnosTable tbody tr').each(function() {
+            const rowText = $(this).text().toLowerCase();
+            if (rowText.includes(searchText)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+});
 </script>
+
+<style>
+/* Estilos para las notificaciones */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 16px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 9999;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    min-width: 300px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification i {
+    font-size: 24px;
+}
+
+.notification-error {
+    border-left: 4px solid #dc3545;
+}
+
+.notification-error i {
+    color: #dc3545;
+}
+
+.notification-success {
+    border-left: 4px solid #28a745;
+}
+
+.notification-success i {
+    color: #28a745;
+}
+
+.notification-info {
+    border-left: 4px solid #17a2b8;
+}
+
+.notification-info i {
+    color: #17a2b8;
+}
+
+.notification span {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Estilos para el body cuando el modal está activo */
+body.modal-open {
+    overflow: hidden;
+}
+</style>
 </body>
 </html>

@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
@@ -13,6 +14,7 @@ use Illuminate\Queue\SerializesModels;
 class ConfirmarCorreoMailable extends Mailable
 {
     use Queueable, SerializesModels;
+    
     public $nombreCompleto;
     public $correo;
 
@@ -21,8 +23,8 @@ class ConfirmarCorreoMailable extends Mailable
      */
     public function __construct($nombreCompleto, $correo)
     {
-        $this->nombreCompleto=$nombreCompleto;
-        $this->correo=$correo;
+        $this->nombreCompleto = $nombreCompleto;
+        $this->correo = $correo;
     }
 
     /**
@@ -31,8 +33,11 @@ class ConfirmarCorreoMailable extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address(env("MAIL_FROM_ADDRESS"),'Nailea Garcia'),
-            subject: 'Confirma tu correo',
+            from: new Address(
+                config('mail.from.address'),
+                config('mail.from.name')
+            ),
+            subject: 'Confirma tu correo - Academia Karate-Do',
         );
     }
 

@@ -86,9 +86,9 @@
     </div>
 
     <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; border-radius: 4px; margin: 20px 0;">
-        <strong>⚠️ Importante:</strong>
+        <strong>âš ï¸ Importante:</strong>
         <ul style="margin: 10px 0; padding-left: 20px;">
-            <li>Este enlace expirará en <strong>10 minutos</strong></li>
+            <li>Este enlace expirara en <strong>10 minutos</strong></li>
             <li>Si no solicitaste este cambio, ignora este correo</li>
             <li>Tu contraseña actual seguirá siendo válida</li>
         </ul>

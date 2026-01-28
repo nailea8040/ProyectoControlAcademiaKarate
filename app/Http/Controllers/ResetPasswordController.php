@@ -60,8 +60,8 @@ class ResetPasswordController extends Controller
         $request->validate([
             'correo' => 'required|email',
         ], [
-            'correo.required' => 'El correo electrónico es obligatorio.',
-            'correo.email' => 'Por favor ingresa un correo electrónico válido.',
+            'correo.required' => 'El correo electrÃ³nico es obligatorio.',
+            'correo.email' => 'Por favor ingresa un correo electrÃ³nico vÃ¡lido.',
         ]);
 
         $correo = $request->input('correo');
@@ -86,15 +86,15 @@ class ResetPasswordController extends Controller
 
                 Mail::to($correo)->send(new cambiarcontrasenniaMailable($nombre, $token));
 
-                Log::info("Correo de recuperación enviado a: {$correo} con token: {$token}");
+                Log::info("Correo de recuperaciÃ³n enviado a: {$correo} con token: {$token}");
 
-                $Mensaje = "¡Listo! Revisa tu correo electrónico para el enlace de recuperación.";
+                $Mensaje = "Â¡Listo! Revisa tu correo electrÃ³nico para el enlace de recuperaciÃ³n.";
                 return redirect('/login')
                     ->with('sessionRecuperarContrasennia', 'true') 
                     ->with('mensaje', $Mensaje);
         
             } else {
-                $Mensaje = "Si el correo existe en nuestros registros, recibirás instrucciones.";
+                $Mensaje = "Si el correo existe en nuestros registros, recibirÃ¡s instrucciones.";
                 return redirect(route('password.request'))
                     ->with('sessionRecuperarContrasennia', 'true')
                     ->with('mensaje', $Mensaje);
@@ -117,14 +117,14 @@ class ResetPasswordController extends Controller
         Log::info('Token recibido:', ['token' => $request->mytoken]);
         
         try {
-            // Validación
+            // ValidaciÃ³n
             $validated = $request->validate([
                 'contrasennia' => 'required|min:8',
                 'recontrasennia' => 'required|same:contrasennia',
                 'mytoken' => 'required'
             ]);
 
-            Log::info('Validación pasada correctamente');
+            Log::info('ValidaciÃ³n pasada correctamente');
 
             $contrasennia = $request->input('contrasennia'); 
             $token = $request->mytoken;
@@ -136,21 +136,21 @@ class ResetPasswordController extends Controller
                 ->where('token_recuperacion', $token)
                 ->first();
 
-            Log::info('Usuario encontrado:', ['usuario' => $usuario ? 'SÍ' : 'NO']);
+            Log::info('Usuario encontrado:', ['usuario' => $usuario ? 'SÃ' : 'NO']);
 
             if (!$usuario) {
                 Log::warning('Token no encontrado en la BD');
-                $MensajeError = "El enlace no es válido o ha expirado.";
+                $MensajeError = "El enlace no es vÃ¡lido o ha expirado.";
                 return redirect(route('login'))
                     ->with('sessionCambiarContrasennia', 'false')
                     ->with('mensaje', $MensajeError);
             }
 
-            // Verificar expiración
+            // Verificar expiraciÃ³n
             $fechaExpiracion = Carbon::parse($usuario->token_expiracion);
             $fechaActual = Carbon::now();
 
-            Log::info('Verificación de fechas:', [
+            Log::info('VerificaciÃ³n de fechas:', [
                 'expiracion' => $fechaExpiracion->toDateTimeString(),
                 'actual' => $fechaActual->toDateTimeString(),
                 'valido' => $fechaExpiracion->greaterThan($fechaActual)
@@ -164,11 +164,11 @@ class ResetPasswordController extends Controller
                     ->with('mensaje', $MensajeError);
             }
 
-            // Cifrar contraseña
+            // Cifrar contraseÃ±a
             $contraseniaCifrada = Hash::make($contrasennia);
-            Log::info('Contraseña cifrada correctamente');
+            Log::info('ContraseÃ±a cifrada correctamente');
 
-            // Actualizar contraseña
+            // Actualizar contraseÃ±a
             $affectedRows = DB::table('usuario') 
                 ->where('token_recuperacion', $token)
                 ->update([
@@ -180,19 +180,19 @@ class ResetPasswordController extends Controller
             Log::info('Filas afectadas:', ['rows' => $affectedRows]);
 
             if ($affectedRows > 0) {
-                Log::info('¡Contraseña actualizada exitosamente!');
+                Log::info('Â¡ContraseÃ±a actualizada exitosamente!');
                 
-                $Mensaje = "¡Contraseña cambiada exitosamente! Ya puedes iniciar sesión.";
+                $Mensaje = "Â¡ContraseÃ±a cambiada exitosamente! Ya puedes iniciar sesiÃ³n.";
                 return redirect(route('login'))
                     ->with('sessionCambiarContrasennia', 'true') 
                     ->with('mensaje', $Mensaje);
             } else {
-                Log::error('No se actualizó ninguna fila');
-                throw new \Exception("No se pudo actualizar la contraseña.");
+                Log::error('No se actualizÃ³ ninguna fila');
+                throw new \Exception("No se pudo actualizar la contraseÃ±a.");
             }
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('Error de validación:', ['errors' => $e->errors()]);
+            Log::error('Error de validaciÃ³n:', ['errors' => $e->errors()]);
             return back()->withErrors($e->errors())->withInput();
             
         } catch (\Exception $e) {
@@ -201,7 +201,7 @@ class ResetPasswordController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             
-            $MensajeError = "Hubo un error al actualizar la contraseña: " . $e->getMessage();
+            $MensajeError = "Hubo un error al actualizar la contraseÃ±a: " . $e->getMessage();
             return redirect(route('login'))
                 ->with('sessionCambiarContrasennia', 'false')
                 ->with('mensaje', $MensajeError); 

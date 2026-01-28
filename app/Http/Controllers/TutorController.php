@@ -72,6 +72,36 @@ class TutorController extends Controller
         return redirect()->back()->withErrors(['db_error' => 'Error en base de datos: ' . $e->getMessage()])->withInput();
     }
     }
+
+    /**
+     * Actualiza la información de un tutor existente.
+     */
+    public function update(Request $request)
+    {
+        // Validar los datos del formulario
+        $validated = $request->validate([
+            'id_Tutor' => 'required|exists:tutor,id_Tutor',
+            'ocupacion' => 'required|string|max:100',
+            'relacion_estudiante' => 'required|string|max:100',
+            'empresa' => 'nullable|string|max:100',
+        ]);
+
+        try {
+            DB::table('tutor')
+                ->where('id_Tutor', $validated['id_Tutor'])
+                ->update([
+                    'ocupacion' => $validated['ocupacion'],
+                    'relacion_estudiante' => $validated['relacion_estudiante'],
+                    'empresa' => $validated['empresa'] ?? null,
+                ]);
+
+            return redirect()->route('tutor.index')->with('success', '¡Tutor actualizado con éxito!');
+
+        } catch (\Exception $e) {
+            Log::error('Error en TutorController@update: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['db_error' => 'Error al actualizar tutor: ' . $e->getMessage()])->withInput();
+        }
+    }
     
     // ... (otros métodos) ...
 }

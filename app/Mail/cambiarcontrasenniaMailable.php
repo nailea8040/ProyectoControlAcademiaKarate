@@ -29,8 +29,11 @@ class cambiarcontrasenniaMailable extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address(env("MAIL_FROM_ADDRESS"), 'Academia Karate-Do'),
-            subject: 'Cambiar contraseña',
+            from: new Address(
+                config('mail.from.address'), 
+                config('mail.from.name')
+            ),
+            subject: 'RecuperaciÃ³n de ContraseÃ±a - Academia Karate-Do',
         );
     }
 
