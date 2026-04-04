@@ -6,96 +6,175 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
+/**
+ * GaleriaController
+ *
+ * Tabla 'evento' con columna nueva: nombre_evento VARCHAR(255) NULL
+ *   nombre_evento IS NULL  → archivo individual
+ *   nombre_evento = valor  → pertenece a galería de evento
+ */
 class GaleriaController extends Controller
 {
-    /**
-     * Mostrar la galería
-     */
-    public function index()
+    private function esAdmin(): bool
     {
-        // Obtener todos los archivos multimedia ordenados por fecha
-        $archivos = DB::table('galeria')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('galeria', compact('archivos'));
+        return Auth::check() && Auth::user()->rol === 'admin';
     }
 
-    /**
-     * Almacenar un nuevo archivo multimedia
-     */
+    public function index()
+    {
+        try {
+            // Eventos agrupados por nombre_evento
+            $nombresEventos = DB::table('evento')
+                ->whereNotNull('nombre_evento')
+                ->select('nombre_evento')
+                ->distinct()
+                ->orderBy('nombre_evento')
+                ->pluck('nombre_evento');
+
+            $eventos = [];
+            foreach ($nombresEventos as $nombre) {
+                $archivosEvento = DB::table('evento')
+                    ->where('nombre_evento', $nombre)
+                    ->orderBy('created_at', 'asc')
+                    ->get();
+
+                $eventos[] = (object)[
+                    'nombre'       => $nombre,
+                    'archivos'     => $archivosEvento,
+                    'total'        => $archivosEvento->count(),
+                    'total_fotos'  => $archivosEvento->where('tipo', 'imagen')->count(),
+                    'total_videos' => $archivosEvento->where('tipo', 'video')->count(),
+                    'miniaturas'   => $archivosEvento->take(8),
+                ];
+            }
+
+            // Archivos individuales (nombre_evento NULL)
+            $individuales = DB::table('evento')
+                ->whereNull('nombre_evento')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $imagenes_ind = $individuales->where('tipo', 'imagen')->values();
+            $videos_ind   = $individuales->where('tipo', 'video')->values();
+
+            return view('galeria', compact('eventos', 'individuales', 'imagenes_ind', 'videos_ind'));
+
+        } catch (\Exception $e) {
+            Log::error('GaleriaController@index: ' . $e->getMessage());
+            return view('galeria', [
+                'eventos'      => [],
+                'individuales' => collect(),
+                'imagenes_ind' => collect(),
+                'videos_ind'   => collect(),
+            ])->with('error', 'Error al cargar la galería.');
+        }
+    }
+
     public function store(Request $request)
     {
-        // Validar que solo el administrador pueda subir archivos
-        if (Auth::user()->rol !== 'administrador') {
+        if (!$this->esAdmin()) {
             return back()->with('error', 'No tienes permisos para subir archivos.');
         }
 
-        // Validar los datos
         $request->validate([
-            'titulo' => 'required|string|max:255',
-            'tipo' => 'required|in:image,video',
-            'archivo' => 'required|file|max:51200', // 50MB máximo
-            'descripcion' => 'nullable|string'
+            'modo'          => 'required|in:individual,evento',
+            'titulo'        => 'required_if:modo,individual|nullable|string|max:255',
+            'nombre_evento' => 'required_if:modo,evento|nullable|string|max:255',
+            'tipo'          => 'required|in:imagen,video',
+            'descripcion'   => 'nullable|string|max:1000',
+            'archivos'      => 'required|array|min:1',
+            'archivos.*'    => 'required|file|max:51200',
         ]);
 
-        // Validar el tipo de archivo según la categoría
-        if ($request->tipo === 'image') {
-            $request->validate([
-                'archivo' => 'mimes:jpeg,jpg,png|max:10240' // 10MB para imágenes
-            ]);
+        if ($request->tipo === 'imagen') {
+            $request->validate(['archivos.*' => 'mimes:jpeg,jpg,png|max:10240']);
         } else {
-            $request->validate([
-                'archivo' => 'mimes:mp4|max:51200' // 50MB para videos
-            ]);
+            $request->validate(['archivos.*' => 'mimes:mp4|max:51200']);
         }
 
-        // Subir el archivo
-        $archivo = $request->file('archivo');
-        $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
-        
-        // Guardar en storage/app/public/galeria
-        $ruta = $archivo->storeAs('galeria', $nombreArchivo, 'public');
+        try {
+            $archivos     = $request->file('archivos');
+            $modoEvento   = $request->modo === 'evento';
+            $nombreEvento = $modoEvento ? trim($request->nombre_evento) : null;
+            $subidos      = 0;
 
-        // Guardar en la base de datos
-        DB::table('galeria')->insert([
-            'titulo' => $request->titulo,
-            'tipo' => $request->tipo,
-            'ruta' => $ruta,
-            'descripcion' => $request->descripcion,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            DB::beginTransaction();
 
-        return back()->with('mensaje', 'Archivo subido exitosamente.');
+            foreach ($archivos as $index => $archivo) {
+                $safe = preg_replace('/[^a-zA-Z0-9._-]/', '_', $archivo->getClientOriginalName());
+                $ruta = $archivo->storeAs('galeria', time() . '_' . $index . '_' . $safe, 'public');
+
+                DB::table('evento')->insert([
+                    'titulo'        => $modoEvento ? $archivo->getClientOriginalName() : ($request->titulo ?? $archivo->getClientOriginalName()),
+                    'nombre_evento' => $nombreEvento,
+                    'tipo'          => $request->tipo,
+                    'ruta'          => $ruta,
+                    'descripcion'   => $request->descripcion,
+                    'id_usuario'    => Auth::id(),
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+                $subidos++;
+            }
+
+            DB::commit();
+
+            $msg = $modoEvento
+                ? "{$subidos} archivo(s) añadidos al evento \"{$nombreEvento}\"."
+                : 'Archivo subido exitosamente.';
+
+            return back()->with('mensaje', $msg);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('GaleriaController@store: ' . $e->getMessage());
+            return back()->with('error', 'Error al subir: ' . $e->getMessage());
+        }
     }
 
-    /**
-     * Eliminar un archivo multimedia
-     */
     public function destroy($id)
     {
-        // Validar que solo el administrador pueda eliminar
-        if (Auth::user()->rol !== 'administrador') {
-            return back()->with('error', 'No tienes permisos para eliminar archivos.');
+        if (!$this->esAdmin()) {
+            return back()->with('error', 'No tienes permisos.');
         }
-
-        // Obtener el archivo de la base de datos
-        $archivo = DB::table('galeria')->where('id_gal', $id)->first();
-
-        if (!$archivo) {
-            return back()->with('error', 'Archivo no encontrado.');
+        try {
+            $archivo = DB::table('evento')->where('id_evento', $id)->first();
+            if (!$archivo) return back()->with('error', 'Archivo no encontrado.');
+            if ($archivo->ruta && Storage::disk('public')->exists($archivo->ruta)) {
+                Storage::disk('public')->delete($archivo->ruta);
+            }
+            DB::table('evento')->where('id_evento', $id)->delete();
+            return back()->with('mensaje', 'Archivo eliminado.');
+        } catch (\Exception $e) {
+            Log::error('GaleriaController@destroy: ' . $e->getMessage());
+            return back()->with('error', 'Error al eliminar.');
         }
+    }
 
-        // Eliminar el archivo físico del storage
-        if (Storage::disk('public')->exists($archivo->ruta)) {
-            Storage::disk('public')->delete($archivo->ruta);
+    /** Eliminar evento completo (todos sus archivos) */
+    public function destroyEvento(Request $request)
+    {
+        if (!$this->esAdmin()) {
+            return back()->with('error', 'No tienes permisos.');
         }
-
-        // Eliminar el registro de la base de datos
-        DB::table('galeria')->where('id_gal', $id)->delete();
-
-        return back()->with('mensaje', 'Archivo eliminado exitosamente.');
+        try {
+            $nombre   = $request->input('nombre_evento');
+            $archivos = DB::table('evento')->where('nombre_evento', $nombre)->get();
+            DB::beginTransaction();
+            foreach ($archivos as $a) {
+                if ($a->ruta && Storage::disk('public')->exists($a->ruta)) {
+                    Storage::disk('public')->delete($a->ruta);
+                }
+            }
+            $n = DB::table('evento')->where('nombre_evento', $nombre)->delete();
+            DB::commit();
+            return back()->with('mensaje', "Evento eliminado ({$n} archivos).");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('GaleriaController@destroyEvento: ' . $e->getMessage());
+            return back()->with('error', 'Error al eliminar el evento.');
+        }
     }
 }

@@ -2,58 +2,112 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class Usuario extends Authenticatable // Cambiado de 'User' a 'Usuario'
+class Usuario extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use Notifiable;
 
-    // 🛑 1. Nombre de la tabla
-    protected $table = 'usuario'; 
-
-    // 🛑 2. Llave primaria
+    // ── Tabla y PK reales en BD ───────────────────────────────────────
+    protected $table      = 'usuario';
     protected $primaryKey = 'id_usuario';
+    public    $timestamps = false; // La tabla no tiene created_at/updated_at estándar
 
-    // 🛑 3. Atributos que pueden ser asignados masivamente (Asegúrate de incluir 'rol')
+    // ── Columnas asignables ───────────────────────────────────────────
     protected $fillable = [
-        'nombre', // Coincide con tu columna 'nombre'
+        'nombre',
         'apaterno',
         'amaterno',
         'fecha_naci',
-        'tel',
-        'correo', // Coincide con tu columna 'correo'
+        'telefono',
+        'correo',
         'pass',
-        'rol',    // **CRÍTICO: Incluir 'rol' para que se guarde**
+        'rol',
+        'estado',
         'fecha_registro',
-        'estado', // Asegúrate de incluir el campo 'activo' si lo usas
-        
     ];
 
-    // 🛑 4. Atributos ocultos al serializar (usando 'pass' en lugar de 'password')
-    protected $hidden = [
-        'pass',
-        'remember_token',
+    // ── Castear tipos para evitar comparaciones string vs integer ────
+    protected $casts = [
+        'estado'         => 'integer',
+        'id_usuario'     => 'integer',
+        'fecha_naci'     => 'date',
+        'fecha_registro' => 'datetime',
     ];
 
-    // 🛑 5. Define la columna de contraseña para que use 'pass' (Sobrescribe el valor por defecto 'password')
-    public function getAuthPasswordName()
+    // ── Ocultar pass en serialización JSON ────────────────────────────
+    protected $hidden = ['pass'];
+
+    // ── Auth: Laravel busca 'password' por defecto, la columna real es 'pass' ──
+    public function getAuthPassword(): string
     {
-        return 'pass';
+        return $this->pass;
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    // ── Auth: identificador único para login (columna 'correo', no 'email') ──
+    public function getAuthIdentifierName(): string
     {
-        return [
-            // No tienes 'email_verified_at', pero sí debes hashear la contraseña
-            'pass' => 'hashed', 
-            'estado' => 'boolean',
-        ];
+        return 'id_usuario';
+    }
+
+    // ── Scopes de utilidad ────────────────────────────────────────────
+    public function scopeActivos($query)
+    {
+        return $query->where('estado', 1);
+    }
+
+    public function scopePorRol($query, string $rol)
+    {
+        return $query->where('rol', $rol);
+    }
+
+    // ── Relaciones ────────────────────────────────────────────────────
+    public function registroFisico()
+    {
+        return $this->hasOne(\App\Models\RegistroFisico::class, 'id_usuario', 'id_usuario');
+    }
+
+    public function historialGrados()
+    {
+        return $this->hasMany(\App\Models\HistorialGrado::class, 'id_usuario', 'id_usuario')
+                    ->orderBy('fecha_obtencion', 'desc');
+    }
+
+    public function pagos()
+    {
+        return $this->hasMany(\App\Models\Pago::class, 'id_usuario', 'id_usuario')
+                    ->orderBy('fecha_pago', 'desc');
+    }
+
+    public function asistencias()
+    {
+        return $this->hasMany(\App\Models\Asistencia::class, 'id_usuario', 'id_usuario');
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────
+    public function getNombreCompletoAttribute(): string
+    {
+        return trim("{$this->nombre} {$this->apaterno} {$this->amaterno}");
+    }
+
+    public function esAdmin(): bool
+    {
+        return $this->rol === 'admin';
+    }
+
+    public function esSensei(): bool
+    {
+        return $this->rol === 'sensei';
+    }
+
+    public function esTutor(): bool
+    {
+        return $this->rol === 'tutor';
+    }
+
+    public function esAlumno(): bool
+    {
+        return $this->rol === 'alumno';
     }
 }

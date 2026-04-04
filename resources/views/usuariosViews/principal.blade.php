@@ -7,6 +7,7 @@
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ asset('css/estilo2.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
@@ -20,7 +21,7 @@
             Sistema de Gestión de Dojo
         </div>
         <div class="breadcrumb-top">
-            Bienvenido, **{{ Auth::user()->nombre ?? 'Usuario del Sistema' }}**
+            Bienvenido, {{ Auth::user()->nombre ?? 'Usuario del Sistema' }}
         </div>
     </div>
 

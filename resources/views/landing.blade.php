@@ -208,7 +208,7 @@
         <div class="row g-4 mb-5">
             @php
                 // Obtener últimos 6 archivos de la galería
-                $galeriaItems = DB::table('galeria')
+                $galeriaItems = DB::table('evento')
                     ->orderBy('created_at', 'desc')
                     ->limit(6)
                     ->get();
@@ -220,7 +220,7 @@
                      onmouseover="this.style.transform='translateY(-10px) scale(1.02)'; this.style.boxShadow='0 30px 80px rgba(0,0,0,0.4)';" 
                      onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 20px 60px rgba(0,0,0,0.3)';">
                     
-                    @if($item->tipo === 'image')
+                    @if($item->tipo === 'imagen')
                         <img src="{{ asset('storage/' . $item->ruta) }}" 
                              alt="{{ $item->titulo }}" 
                              style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
@@ -248,7 +248,7 @@
 
                     <!-- Badge de tipo -->
                     <div style="position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); color: white; padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 700;">
-                        @if($item->tipo === 'image')
+                        @if($item->tipo === 'imagen')
                             <i class="bi bi-image-fill me-1"></i> Foto
                         @else
                             <i class="bi bi-play-circle-fill me-1"></i> Video

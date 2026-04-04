@@ -424,7 +424,7 @@
                             <div class="profile-role">
                                 @php
                                     $roleIcon = [
-                                        'administrador' => 'bi-shield-fill-check',
+                                        'admin' => 'bi-shield-fill-check',
                                         'sensei' => 'bi-award-fill',
                                         'tutor' => 'bi-person-lines-fill',
                                         'alumno' => 'bi-person-badge'
@@ -440,7 +440,7 @@
                                 </div>
                                 <div class="profile-meta-item">
                                     <i class="bi bi-telephone-fill"></i>
-                                    {{ auth()->user()->tel }}
+                                    {{ auth()->user()->telefono }}
                                 </div>
                                 <div class="profile-meta-item">
                                     <i class="bi bi-calendar-check-fill"></i>
@@ -573,7 +573,7 @@
                                         <i class="bi bi-telephone"></i>
                                         Teléfono
                                     </div>
-                                    <div class="info-value">{{ auth()->user()->tel }}</div>
+                                    <div class="info-value">{{ auth()->user()->telefono }}</div>
                                 </div>
                             </div>
                         </div>
@@ -617,7 +617,7 @@
                                     <div class="info-value">
                                         @php
                                             $badgeClass = [
-                                                'administrador' => 'badge-admin',
+                                                'admin' => 'badge-admin',
                                                 'sensei' => 'badge-sensei',
                                                 'tutor' => 'badge-tutor',
                                                 'alumno' => 'badge-alumno'

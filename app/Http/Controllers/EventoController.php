@@ -5,101 +5,145 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
+/**
+ * EventoController maneja la galería multimedia de la academia.
+ * Tabla real en BD: evento
+ * Columnas: id_evento, titulo, tipo ENUM('imagen','video'), ruta, descripcion, id_usuario
+ *
+ * NOTA: Los eventos de calendario (clases, torneos, exámenes) se gestionan
+ *       en CalendarioController con la tabla 'calendario'.
+ */
 class EventoController extends Controller
 {
-    /**
-     * Almacenar un nuevo evento
-     */
+    private function esAdmin(): bool
+    {
+        return Auth::check() && Auth::user()->rol === 'admin';
+    }
+
+    public function index()
+    {
+        try {
+            // Tabla correcta: evento (no 'eventos')
+            $archivos = DB::table('evento')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return view('eventoViews.eventos', compact('archivos'));
+
+        } catch (\Exception $e) {
+            Log::error('EventoController@index: ' . $e->getMessage());
+            return view('eventoViews.eventos', ['archivos' => collect()])
+                ->with('error', 'Error al cargar los eventos.');
+        }
+    }
+
     public function store(Request $request)
     {
-        // 1. Validar que solo el admin pueda hacerlo
-        if (Auth::user()->rol !== 'administrador') {
-            return back()->with('error', 'No tienes permisos.');
+        if (!$this->esAdmin()) {
+            return back()->with('error', 'No tienes permisos para subir archivos.');
         }
 
-        // 2. Validar los datos
         $request->validate([
-            'titulo'      => 'required|string|max:100',
-            'fecha'       => 'required|date',
-            'hora'        => 'required',
-            'ubicacion'   => 'required|string',
-            'tipo'        => 'required|in:tournament,exam,class,seminar',
-            'descripcion' => 'nullable|string'
+            'titulo'      => 'required|string|max:255',
+            // ENUM real en BD: 'imagen' o 'video' (no 'image')
+            'tipo'        => 'required|in:imagen,video',
+            'archivo'     => 'required|file|max:51200',
+            'descripcion' => 'nullable|string',
         ]);
 
-        // 3. Insertar en la base de datos
-        DB::table('eventos')->insert([
-            'titulo'      => $request->titulo,
-            'fecha'       => $request->fecha,
-            'hora'        => $request->hora,
-            'ubicacion'   => $request->ubicacion,
-            'tipo'        => $request->tipo,
-            'descripcion' => $request->descripcion,
-            'created_at'  => now(),
-            'updated_at'  => now()
-        ]);
-
-        return back()->with('mensaje', 'Evento creado con éxito');
-    }
-
-    /**
-     * Actualizar un evento existente
-     */
-    public function update(Request $request, $id)
-    {
-        // 1. Validar que solo el admin pueda hacerlo
-        if (Auth::user()->rol !== 'administrador') {
-            return back()->with('error', 'No tienes permisos para editar eventos.');
+        // Validación adicional según tipo
+        if ($request->tipo === 'imagen') {
+            $request->validate(['archivo' => 'mimes:jpeg,jpg,png|max:10240']);
+        } else {
+            $request->validate(['archivo' => 'mimes:mp4|max:51200']);
         }
 
-        // 2. Validar los datos
-        $request->validate([
-            'titulo'      => 'required|string|max:100',
-            'fecha'       => 'required|date',
-            'hora'        => 'required',
-            'ubicacion'   => 'required|string',
-            'tipo'        => 'required|in:tournament,exam,class,seminar',
-            'descripcion' => 'nullable|string'
-        ]);
+        try {
+            $archivo       = $request->file('archivo');
+            $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+            // Guardar en storage/app/public/eventos/
+            $ruta = $archivo->storeAs('eventos', $nombreArchivo, 'public');
 
-        // 3. Actualizar el evento en la base de datos
-        $updated = DB::table('eventos')
-            ->where('id', $id)
-            ->update([
+            // Tabla correcta: evento (no 'galeria', no 'eventos')
+            DB::table('evento')->insert([
                 'titulo'      => $request->titulo,
-                'fecha'       => $request->fecha,
-                'hora'        => $request->hora,
-                'ubicacion'   => $request->ubicacion,
-                'tipo'        => $request->tipo,
+                'tipo'        => $request->tipo,   // 'imagen' o 'video'
+                'ruta'        => $ruta,
                 'descripcion' => $request->descripcion,
-                'updated_at'  => now()
+                'id_usuario'  => Auth::id(),
+                'created_at'  => now(),
+                'updated_at'  => now(),
             ]);
 
-        if ($updated) {
-            return back()->with('mensaje', 'Evento actualizado con éxito');
-        } else {
-            return back()->with('error', 'No se pudo actualizar el evento');
+            return back()->with('mensaje', 'Archivo subido exitosamente.');
+
+        } catch (\Exception $e) {
+            Log::error('EventoController@store: ' . $e->getMessage());
+            return back()->with('error', 'Error al subir el archivo.');
         }
     }
 
-    /**
-     * Eliminar un evento
-     */
-    public function destroy($id)
+    public function update(Request $request, $id)
     {
-        // 1. Validar que solo el admin pueda hacerlo
-        if (Auth::user()->rol !== 'administrador') {
-            return back()->with('error', 'No tienes permisos para eliminar eventos.');
+        if (!$this->esAdmin()) {
+            return back()->with('error', 'No tienes permisos para editar.');
         }
 
-        // 2. Eliminar el evento de la base de datos
-        $deleted = DB::table('eventos')->where('id', $id)->delete();
+        $request->validate([
+            'titulo'      => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+        ]);
 
-        if ($deleted) {
-            return back()->with('mensaje', 'Evento eliminado con éxito');
-        } else {
-            return back()->with('error', 'No se pudo eliminar el evento');
+        try {
+            // PK real: id_evento
+            $updated = DB::table('evento')
+                ->where('id_evento', $id)
+                ->update([
+                    'titulo'      => $request->titulo,
+                    'descripcion' => $request->descripcion,
+                    'updated_at'  => now(),
+                ]);
+
+            return back()->with(
+                $updated ? 'mensaje' : 'error',
+                $updated ? 'Evento actualizado con éxito.' : 'No se encontró el evento.'
+            );
+
+        } catch (\Exception $e) {
+            Log::error('EventoController@update: ' . $e->getMessage());
+            return back()->with('error', 'Error al actualizar.');
+        }
+    }
+
+    public function destroy($id)
+    {
+        if (!$this->esAdmin()) {
+            return back()->with('error', 'No tienes permisos para eliminar archivos.');
+        }
+
+        try {
+            // PK real: id_evento
+            $archivo = DB::table('evento')->where('id_evento', $id)->first();
+
+            if (!$archivo) {
+                return back()->with('error', 'Archivo no encontrado.');
+            }
+
+            // Eliminar archivo físico del storage
+            if ($archivo->ruta && Storage::disk('public')->exists($archivo->ruta)) {
+                Storage::disk('public')->delete($archivo->ruta);
+            }
+
+            DB::table('evento')->where('id_evento', $id)->delete();
+
+            return back()->with('mensaje', 'Archivo eliminado exitosamente.');
+
+        } catch (\Exception $e) {
+            Log::error('EventoController@destroy: ' . $e->getMessage());
+            return back()->with('error', 'Error al eliminar el archivo.');
         }
     }
 }

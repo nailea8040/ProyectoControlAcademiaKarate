@@ -112,7 +112,7 @@
                             <label class="form-label">Teléfono <span class="required">*</span></label>
                             <div class="form-input-wrapper">
                                 <i class="bi bi-telephone input-icon"></i>
-                                <input type="text" class="form-input" id="tel" name="tel" placeholder="(000) 000-0000" required 
+                                <input type="text" class="form-input" id="telefono" name="telefono" placeholder="10 dígitos" required 
                                 minlength="10" 
                                 maxlength="10" 
                                 pattern="[0-9]{10}">
@@ -148,7 +148,7 @@
                                 <i class="bi bi-person-badge input-icon"></i>
                                 <select class="form-select" id="rol" name="rol" required>
                                     <option value="">Seleccione un rol</option>
-                                    <option value="administrador" {{ old('rol') == 'administrador' ? 'selected' : '' }}>Administrador</option>
+                                    <option value="admin" {{ old('rol') == 'admin' ? 'selected' : '' }}>Administrador</option>
                                     <option value="sensei" {{ old('rol') == 'sensei' ? 'selected' : '' }}>Sensei</option>
                                     <option value="tutor" {{ old('rol') == 'tutor' ? 'selected' : '' }}>Tutor</option>
                                     <option value="alumno" {{ old('rol') == 'alumno' ? 'selected' : '' }}>Alumno</option>
@@ -187,11 +187,38 @@
                         Usuarios Registrados ({{ count($usuarios) }})
                     </h2>
                     
-                    <div class="table-actions">
-                        <div class="search-box">
-                            <i class="bi bi-search search-icon"></i>
-                            <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre, correo o rol...">
-                        </div>
+                    <div class="table-actions" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;width:100%;">
+                        <form method="GET" action="{{ route('usuarios.index') }}" id="filtrosForm"
+                              style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;width:100%;">
+                            <div class="search-box" style="flex:1;min-width:180px;">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="text" class="search-input" name="buscar"
+                                       placeholder="Buscar nombre, correo..."
+                                       value="{{ $filtros['buscar'] ?? '' }}">
+                            </div>
+                            <select name="rol" class="form-select" style="width:140px;"
+                                    onchange="document.getElementById('filtrosForm').submit()">
+                                <option value="">Todos los roles</option>
+                                <option value="admin"   {{ ($filtros['rol'] ?? '') === 'admin'   ? 'selected' : '' }}>Administrador</option>
+                                <option value="sensei"  {{ ($filtros['rol'] ?? '') === 'sensei'  ? 'selected' : '' }}>Sensei</option>
+                                <option value="tutor"   {{ ($filtros['rol'] ?? '') === 'tutor'   ? 'selected' : '' }}>Tutor</option>
+                                <option value="alumno"  {{ ($filtros['rol'] ?? '') === 'alumno'  ? 'selected' : '' }}>Alumno</option>
+                            </select>
+                            <select name="estado" class="form-select" style="width:130px;"
+                                    onchange="document.getElementById('filtrosForm').submit()">
+                                <option value="">Todos</option>
+                                <option value="1" {{ ($filtros['estado'] ?? '') === '1' ? 'selected' : '' }}>Activos</option>
+                                <option value="0" {{ ($filtros['estado'] ?? '') === '0' ? 'selected' : '' }}>Inactivos</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary" style="white-space:nowrap;">
+                                <i class="bi bi-funnel-fill"></i> Filtrar
+                            </button>
+                            @if(!empty(array_filter($filtros ?? [])))
+                                <a href="{{ route('usuarios.index') }}" class="btn btn-secondary" style="white-space:nowrap;">
+                                    <i class="bi bi-x-lg"></i> Limpiar
+                                </a>
+                            @endif
+                        </form>
                     </div>
                 </div>
 
@@ -226,7 +253,7 @@
                                         @php
                                             $badgeClass = '';
                                             switch($usuario->rol) {
-                                                case 'administrador': $badgeClass = 'badge-admin'; break;
+                                                case 'admin': $badgeClass = 'badge-admin'; break;
                                                 case 'sensei': $badgeClass = 'badge-sensei'; break;
                                                 case 'tutor': $badgeClass = 'badge-tutor'; break;
                                                 case 'alumno': default: $badgeClass = 'badge-alumno'; break;
@@ -235,7 +262,7 @@
                                         <span class="badge {{ $badgeClass }}">{{ ucfirst($usuario->rol) }}</span>
                                     </td>
                                     
-                                    <td>{{ $usuario->tel }}</td>
+                                    <td>{{ $usuario->telefono }}</td>
                                     <td>{{ date('d/m/Y', strtotime($usuario->fecha_naci)) }}</td>
                                     <td>{{ date('d/m/Y', strtotime($usuario->fecha_registro)) }}</td>
                                     
@@ -261,14 +288,14 @@
             data-apaterno="{{ $usuario->apaterno }}"
             data-amaterno="{{ $usuario->amaterno }}"
             data-fecha_naci="{{ $usuario->fecha_naci }}"
-            data-tel="{{ $usuario->tel }}"
+            data-telefono="{{ $usuario->telefono }}"
             data-correo="{{ $usuario->correo }}"
             data-rol="{{ $usuario->rol }}"
             title="Editar">
             <i class="bi bi-pencil-fill"></i>
         </button>
         
-        @if ($usuario->rol !== 'administrador')
+        @if ($usuario->rol !== 'admin')
             <form action="{{ route('usuarios.destroy', $usuario->id_usuario) }}" method="POST" style="display:inline;" onsubmit="return confirmarEliminacion(event);">
                 @csrf
                 @method('DELETE') 
@@ -278,7 +305,7 @@
                 </button>
             </form>
         @else
-            <button type="button" class="action-btn btn-disabled" title="No se puede eliminar un administrador" disabled style="cursor: not-allowed; opacity: 0.6; background-color: #f8d7da;">
+            <button type="button" class="action-btn btn-disabled" title="No se puede eliminar este usuario" disabled style="cursor: not-allowed; opacity: 0.6; background-color: #f8d7da;">
                 <i class="bi bi-x-octagon-fill"></i>
             </button>
         @endif
@@ -329,8 +356,8 @@
                             <input type="date" class="form-control" id="edit_fecha_naci" name="fecha_naci" required>
                         </div>
                         <div class="mb-3">
-                            <label for="edit_tel" class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" id="edit_tel" name="tel" maxlength="20" required>
+                            <label for="edit_telefono" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="edit_telefono" name="telefono" maxlength="20" required>
                         </div>
                         <div class="mb-3">
                             <label for="edit_correo" class="form-label">Correo electrónico</label>
@@ -343,7 +370,7 @@
                         <div class="mb-3">
                             <label for="edit_rol" class="form-label">Rol</label>
                             <select id="edit_rol" name="rol" class="form-select" required>
-                                <option value="administrador">Administrador</option>
+                                <option value="admin">Administrador</option>
                                 <option value="sensei">Sensei</option>
                                 <option value="tutor">Tutor</option>
                                 <option value="alumno">Alumno</option>
@@ -453,7 +480,7 @@
                 const apaterno = $(this).data('apaterno');
                 const amaterno = $(this).data('amaterno');
                 const fechaNaci = $(this).data('fecha_naci');
-                const tel = $(this).data('tel');
+                const telefono = $(this).data('telefono');
                 const correo = $(this).data('correo');
                 const rol = $(this).data('rol');
 
@@ -462,7 +489,7 @@
                 $('#edit_apaterno').val(apaterno);
                 $('#edit_amaterno').val(amaterno);
                 $('#edit_fecha_naci').val(fechaNaci);
-                $('#edit_tel').val(tel);
+                $('#edit_telefono').val(telefono);
                 $('#edit_correo').val(correo);
                 $('#edit_rol').val(rol);
 

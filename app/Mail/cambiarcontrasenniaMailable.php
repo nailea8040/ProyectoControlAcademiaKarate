@@ -33,7 +33,7 @@ class cambiarcontrasenniaMailable extends Mailable
                 config('mail.from.address'), 
                 config('mail.from.name')
             ),
-            subject: 'RecuperaciÃ³n de ContraseÃ±a - Academia Karate-Do',
+            subject: 'Recuperacion de Contraseña - Academia Karate-Do',
         );
     }
 

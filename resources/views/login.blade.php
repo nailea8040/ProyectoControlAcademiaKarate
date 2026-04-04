@@ -5,11 +5,49 @@
     <link rel="stylesheet" href="{{ asset('/css/estiloindex.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-     
+    <style>
+        /* Botón outline — sin rellenar, con borde */
+        .btn-outline-login {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1.5px solid #c62828;
+            background: transparent;
+            color: #c62828;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background .2s, color .2s;
+            font-family: inherit;
+            margin-top: 6px;
+        }
+        .btn-outline-login:hover {
+            background: rgba(198, 40, 40, 0.07);
+        }
+
+        /* Separador visual entre los dos botones outline */
+        .login-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 4px 0;
+            color: #aaa;
+            font-size: 12px;
+        }
+        .login-divider::before,
+        .login-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+    </style>
 </head>
 <body>
 
-    
     <div class="auth-container">
         <form class="login-form" action="{{ route('login.attempt') }}" method="POST">
             @csrf
@@ -19,68 +57,56 @@
             <input type="password" name="contra" placeholder="Contraseña" required>
 
             <button type="submit">Ingresar</button>
+
             <a href="{{ route('password.request') }}" class="forgot-password-link">
-            ¿Olvidaste tu contraseña?
-        </a>
+                ¿Olvidaste tu contraseña?
+            </a>
+
+            <div class="login-divider">o</div>
+
+            <a href="{{ route('registro.create') }}" class="btn-outline-login">
+                Crear cuenta nueva
+            </a>
         </form>
     </div>
 
     <script>
-    // Usa esta variable para almacenar el mensaje y el tipo de error
     let errorTitle = null;
     let errorMessage = null;
 
-    // ==============================================
-    // 1. Manejo de Errores de Login con SweetAlert
-    // ==============================================
-    
-    // ⭐ Caso A: Cuenta inactiva (Devuelto por el controlador si estado = 0)
     @if ($errors->has('cuenta_inactiva'))
         errorTitle = 'Acceso Denegado';
-        errorMessage = '{{ $errors->first('cuenta_inactiva') }}'; // Mensaje de: Su cuenta está inactiva...
-    
-    // ⭐ Caso B: Credenciales incorrectas (Devuelto por el controlador si la autenticación falla)
+        errorMessage = '{{ $errors->first('cuenta_inactiva') }}';
+
     @elseif ($errors->has('login_fallido'))
         errorTitle = 'Error de Credenciales';
-        errorMessage = '{{ $errors->first('login_fallido') }}'; // Mensaje de: Credenciales incorrectas...
+        errorMessage = '{{ $errors->first('login_fallido') }}';
 
-    // ⭐ Caso C: Errores de Validación (Ej: Correo no es email, falta campo, etc.)
     @elseif ($errors->any())
         errorTitle = 'Faltan datos';
-        // Para errores de validación, SweetAlert solo mostrará el primer error para no ser intrusivo.
-        // Si quieres mostrar todos, necesitarías un bucle más complejo, pero este es el enfoque limpio.
         errorMessage = 'Por favor, corrige el error: {{ $errors->all()[0] }}';
     @endif
 
-
-    // Muestra el SweetAlert si encontramos algún error de login o validación
     if (errorMessage) {
         Swal.fire({
             title: errorTitle,
             text: errorMessage,
             icon: 'error',
             confirmButtonText: 'Entendido',
-            confirmButtonColor: '#e53935' // Usamos el color rojo del Dojo
+            confirmButtonColor: '#e53935'
         });
     }
 
-
-    // ==============================================
-    // 2. Manejo de Mensajes de Éxito (Status)
-    // ==============================================
-
-    // ⭐ Cierre de sesión exitoso o cualquier otro mensaje de 'status'
     @if (session('status'))
         Swal.fire({
             title: 'Éxito',
             text: '{{ session('status') }}',
             icon: 'success',
             confirmButtonText: 'Continuar',
-            confirmButtonColor: '#4CAF50' // Color verde
+            confirmButtonColor: '#4CAF50'
         });
     @endif
-    
-</script>
+    </script>
 
 </body>
 </html>
